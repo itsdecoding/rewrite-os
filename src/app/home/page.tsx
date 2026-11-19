@@ -102,10 +102,10 @@ export default function HomePage() {
                 </h3>
               </div>
               <Link
-                href="/content"
+                href="/calendar"
                 className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
               >
-                View all &rarr;
+                View calendar &rarr;
               </Link>
             </div>
 
@@ -326,10 +326,10 @@ export default function HomePage() {
                 </h3>
               </div>
               <Link
-                href="/content"
+                href="/calendar"
                 className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
               >
-                View all &rarr;
+                View calendar &rarr;
               </Link>
             </div>
 
@@ -373,10 +373,10 @@ export default function HomePage() {
                 </h3>
               </div>
               <Link
-                href="/content"
+                href="/calendar"
                 className="text-[12px] font-medium text-gray-400 hover:text-gray-600 transition-colors"
               >
-                View all &rarr;
+                View calendar &rarr;
               </Link>
             </div>
 

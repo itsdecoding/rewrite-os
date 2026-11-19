@@ -21,6 +21,11 @@ export function Sidebar() {
 
   const isHomeActive = pathname === "/home" || pathname === "/";
   const isContentActive = pathname.startsWith("/content");
+  const isTasksActive = pathname.startsWith("/tasks");
+  const isCalendarActive = pathname.startsWith("/calendar");
+  const isDiscoverActive = pathname.startsWith("/discover");
+  const isInsightsActive = pathname.startsWith("/insights");
+  const isSettingsActive = pathname.startsWith("/settings");
 
   return (
     <aside className="hidden md:flex fixed top-4 left-4 bottom-4 w-[240px] z-40 bg-white rounded-3xl border border-gray-100/90 shadow-sidebar flex-col justify-between p-4 select-none">
@@ -49,7 +54,7 @@ export function Sidebar() {
         {/* Primary Action Button */}
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="w-full bg-[#FF5A1F] hover:bg-[#E84C12] active:scale-[0.98] transition-all text-white font-semibold text-[13.5px] py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-[0_2px_8px_rgba(255,90,31,0.25)] mb-6"
+          className="w-full bg-[#FF5A1F] hover:bg-[#E84C12] active:scale-[0.98] transition-all text-white font-semibold text-[13.5px] py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 shadow-[0_2px_8px_rgba(255,90,31,0.25)] mb-6 cursor-pointer"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Create content</span>
@@ -63,9 +68,9 @@ export function Sidebar() {
 
           <Link
             href="/home"
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all ${
+            className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isHomeActive
-                ? "bg-[#FF5A1F] text-white shadow-sm font-semibold"
+                ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
             }`}
           >
@@ -75,9 +80,9 @@ export function Sidebar() {
 
           <Link
             href="/content"
-            className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium transition-all ${
+            className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isContentActive
-                ? "bg-[#FF5A1F] text-white shadow-sm font-semibold"
+                ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
                 : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
             }`}
           >
@@ -85,49 +90,69 @@ export function Sidebar() {
             <span>Content</span>
           </Link>
 
-          <div
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50/80 cursor-pointer transition-all"
-            onClick={() => {}}
+          <Link
+            href="/tasks"
+            className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
+              isTasksActive
+                ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
+            }`}
           >
-            <CheckSquare className="w-4 h-4 text-gray-500" />
+            <CheckSquare className={`w-4 h-4 ${isTasksActive ? "text-white" : "text-gray-500"}`} />
             <span>Tasks</span>
-          </div>
+          </Link>
 
-          <div
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50/80 cursor-pointer transition-all"
-            onClick={() => {}}
+          <Link
+            href="/calendar"
+            className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
+              isCalendarActive
+                ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
+            }`}
           >
-            <Calendar className="w-4 h-4 text-gray-500" />
+            <Calendar className={`w-4 h-4 ${isCalendarActive ? "text-white" : "text-gray-500"}`} />
             <span>Calendar</span>
-          </div>
+          </Link>
 
-          <div
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50/80 cursor-pointer transition-all"
-            onClick={() => {}}
+          <Link
+            href="/discover"
+            className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
+              isDiscoverActive
+                ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
+            }`}
           >
-            <TrendingUp className="w-4 h-4 text-gray-500" />
-            <span>Discover</span>
-          </div>
+            <TrendingUp className={`w-4 h-4 ${isDiscoverActive ? "text-white" : "text-gray-500"}`} />
+            <span>Discover (Radar)</span>
+          </Link>
 
-          <div
-            className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-[13.5px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50/80 cursor-pointer transition-all"
-            onClick={() => {}}
+          <Link
+            href="/insights"
+            className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
+              isInsightsActive
+                ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
+                : "text-gray-600 hover:text-gray-900 hover:bg-gray-50/80"
+            }`}
           >
-            <Clock className="w-4 h-4 text-gray-500" />
+            <Clock className={`w-4 h-4 ${isInsightsActive ? "text-white" : "text-gray-500"}`} />
             <span>Insights</span>
-          </div>
+          </Link>
         </div>
       </div>
 
       {/* Bottom Settings Link */}
       <div className="pt-2 border-t border-gray-100/80">
-        <div
-          className="flex items-center gap-3 px-3 py-2 rounded-xl text-[13.5px] font-medium text-gray-600 hover:text-gray-900 hover:bg-gray-50 cursor-pointer transition-all"
-          onClick={() => {}}
+        <Link
+          href="/settings"
+          className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
+            isSettingsActive
+              ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
+              : "text-gray-600 hover:text-gray-900 hover:bg-gray-50"
+          }`}
         >
-          <Settings className="w-4 h-4 text-gray-500" />
+          <Settings className={`w-4 h-4 ${isSettingsActive ? "text-white" : "text-gray-500"}`} />
           <span>Settings</span>
-        </div>
+        </Link>
       </div>
     </aside>
   );

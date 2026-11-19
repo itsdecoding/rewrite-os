@@ -84,32 +84,46 @@ export function MobileTabBar() {
         </div>
 
         {/* 4. Calendar Tab */}
-        <button
-          type="button"
-          onClick={() => {}}
+        <Link
+          href="/calendar"
           className="flex-1 flex flex-col items-center justify-center py-1 group active:scale-95 transition-transform cursor-pointer"
         >
-          <div className="text-gray-400 group-hover:text-gray-600 transition-colors">
+          <div
+            className={`transition-colors ${
+              pathname.startsWith("/calendar") ? "text-[#FF5A1F]" : "text-gray-400 group-hover:text-gray-600"
+            }`}
+          >
             <Calendar className="w-5 h-5 stroke-[2.2]" />
           </div>
-          <span className="text-[10px] font-medium tracking-tight mt-0.5 leading-none text-gray-400">
+          <span
+            className={`text-[10px] font-medium tracking-tight mt-0.5 leading-none transition-colors ${
+              pathname.startsWith("/calendar") ? "text-[#FF5A1F] font-bold" : "text-gray-400"
+            }`}
+          >
             Calendar
           </span>
-        </button>
+        </Link>
 
         {/* 5. Insights Tab */}
-        <button
-          type="button"
-          onClick={() => {}}
+        <Link
+          href="/insights"
           className="flex-1 flex flex-col items-center justify-center py-1 group active:scale-95 transition-transform cursor-pointer"
         >
-          <div className="text-gray-400 group-hover:text-gray-600 transition-colors">
+          <div
+            className={`transition-colors ${
+              pathname.startsWith("/insights") ? "text-[#FF5A1F]" : "text-gray-400 group-hover:text-gray-600"
+            }`}
+          >
             <PieChart className="w-5 h-5 stroke-[2.2]" />
           </div>
-          <span className="text-[10px] font-medium tracking-tight mt-0.5 leading-none text-gray-400">
+          <span
+            className={`text-[10px] font-medium tracking-tight mt-0.5 leading-none transition-colors ${
+              pathname.startsWith("/insights") ? "text-[#FF5A1F] font-bold" : "text-gray-400"
+            }`}
+          >
             Insights
           </span>
-        </button>
+        </Link>
       </div>
     </nav>
   );
