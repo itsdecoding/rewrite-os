@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Content OS - Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+a{text-decoration:none;color:inherit}
+button{font-family:inherit;cursor:pointer}
+body{font-family:'Inter',sans-serif;font-size:13px;color:#1a1a1a;background:#f7f7f7;display:flex;min-height:100vh}
+.sidebar{width:162px;min-width:162px;background:#fff;border-right:1px solid #ebebeb;display:flex;flex-direction:column;padding:18px 0 20px;position:fixed;top:0;left:0;bottom:0;z-index:20}
+.brand{display:flex;align-items:center;gap:9px;padding:0 14px 18px;border-bottom:1px solid #f0f0f0;margin-bottom:6px}
+.brand-avatar img{width:34px;height:34px;border-radius:8px;display:block}
+.brand-name{font-size:12.5px;font-weight:600;color:#111;line-height:1.3}
+.brand-sub{font-size:9px;font-weight:600;color:#bbb;letter-spacing:.06em}
+.nav{display:flex;flex-direction:column;gap:1px;padding:0 8px;flex:1}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#666;transition:background .15s,color .15s;cursor:pointer}
+.nav-item:hover{background:#fdf3ec;color:#e85d00}
+.nav-item.active{background:#fde8d8;color:#e85d00;font-weight:600}
+.nav-icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-icon svg{width:15px;height:15px}
+.sidebar-footer{padding:12px 12px 0}
+.btn-new-content{display:block;width:100%;padding:9px 0;background:#ff6b00;color:#fff;font-size:12.5px;font-weight:600;border:none;border-radius:8px;transition:background .15s,transform .1s;text-align:center}
+.btn-new-content:hover{background:#e05e00;transform:translateY(-1px)}
+.main{margin-left:162px;flex:1;padding:28px 32px 40px;background:#f7f7f7;min-height:100vh}
+.page-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:24px}
+.page-label{font-size:10px;font-weight:600;color:#bbb;letter-spacing:.08em;margin-bottom:3px}
+.page-title{font-size:26px;font-weight:700;color:#111;letter-spacing:-.5px}
+.btn-open-board{background:#fff;border:1px solid #e0e0e0;border-radius:8px;padding:8px 16px;font-size:12.5px;font-weight:500;color:#333;transition:border-color .15s,box-shadow .15s,transform .1s}
+.btn-open-board:hover{border-color:#bbb;box-shadow:0 2px 6px rgba(0,0,0,.08);transform:translateY(-1px)}
+.stats-row{display:flex;gap:1px;background:#e0e0e0;border:1px solid #e0e0e0;border-radius:14px;overflow:hidden;margin-bottom:20px}
+.stat-card{flex:1;background:#fff;padding:20px 22px;display:flex;flex-direction:column;gap:6px;transition:background .15s;cursor:pointer}
+.stat-card:hover{background:#fdfbff}
+.stat-icon{width:26px;height:26px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+.stat-icon svg{width:22px;height:22px;stroke:#ff6b00}
+.stat-value{font-size:30px;font-weight:700;color:#111;line-height:1;letter-spacing:-.5px}
+.stat-label{font-size:10px;font-weight:600;color:#bbb;letter-spacing:.07em}
+.charts-row{display:flex;gap:16px;margin-bottom:20px}
+.chart-card{flex:1;background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:22px 24px}
+.status-card{width:270px;min-width:270px;background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:22px 24px}
+.chart-title{font-size:10px;font-weight:700;color:#aaa;letter-spacing:.08em;margin-bottom:18px}
+.bar-list{display:flex;flex-direction:column;gap:16px}
+.bar-item{display:flex;flex-direction:column;gap:6px;cursor:pointer;padding:4px 6px;border-radius:6px;transition:background .15s}
+.bar-item:hover{background:#f9f9f9}
+.bar-label-row{display:flex;align-items:center;gap:8px}
+.bar-name{flex:1;font-size:12.5px;font-weight:500;color:#333}
+.bar-count{font-size:12px;font-weight:600;color:#555}
+.bar-track{height:7px;background:#f0f0f0;border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px;width:0;background:linear-gradient(90deg,#ff8c00,#ff6b00);transition:width 0.8s cubic-bezier(.4,0,.2,1)}
+.p-dot{width:13px;height:13px;border-radius:3px;flex-shrink:0;display:inline-block}
+.p-dot.ig-reel{background:linear-gradient(135deg,#e040fb,#ff5252)}
+.p-dot.ig-carousel{background:linear-gradient(135deg,#7e57c2,#ff4081)}
+.p-dot.linkedin{background:#0077b5}
+.p-dot.twitter{background:#111}
+.p-dot.youtube{background:linear-gradient(135deg,#1a73e8,#42a5f5)}
+.status-list{display:flex;flex-direction:column;gap:10px}
+.status-row{display:flex;align-items:center;justify-content:space-between;cursor:pointer;border-radius:6px;padding:3px 6px;transition:background .15s}
+.status-row:hover{background:#f5f5f5}
+.status-count{font-size:12.5px;font-weight:600;color:#555}
+.status-tag{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:11.5px;font-weight:500;white-space:nowrap}
+.status-tag.idea{background:#f3f0ff;color:#6d28d9;border:1px solid #ddd6f7}
+.status-tag.scripting{background:#edf4ff;color:#1d4ed8;border:1px solid #ccdcf5}
+.status-tag.filming{background:#fff0f5;color:#be185d;border:1px solid #f5cce0}
+.status-tag.editing{background:#fff4e6;color:#c2410c;border:1px solid #f5dab8}
+.status-tag.review{background:#fffbeb;color:#92400e;border:1px solid #f0dfa0}
+.status-tag.revision{background:#fff1f2;color:#b91c1c;border:1px solid #fecaca}
+.status-tag.scheduled{background:#ecfdf5;color:#065f46;border:1px solid #a7f3d0}
+.status-tag.posted{background:#f0fdf4;color:#047857;border:1px solid #bbf7d0}
+.bottom-row{display:flex;gap:16px}
+.bottom-card{flex:1;background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:20px 22px;display:flex;flex-direction:column}
+.bottom-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.bottom-card-title{display:flex;align-items:center;gap:7px;font-size:10px;font-weight:700;color:#aaa;letter-spacing:.08em}
+.view-all{font-size:12px;font-weight:500;color:#aaa;transition:color .15s}
+.view-all:hover{color:#ff6b00}
+.review-list{display:flex;flex-direction:column;gap:10px}
+.review-item{border:1px solid #f0f0f0;border-radius:9px;padding:12px 14px;display:flex;flex-direction:column;gap:8px;transition:box-shadow .15s,border-color .15s;cursor:pointer}
+.review-item:hover{box-shadow:0 2px 8px rgba(0,0,0,.07);border-color:#e0e0e0}
+.review-title{font-size:13px;font-weight:600;color:#111}
+.review-tags{display:flex;align-items:center;gap:7px}
+.tag-platform{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:500;color:#555;background:#f5f5f5;border:1px solid #e8e8e8;padding:3px 9px;border-radius:6px}
+.tag-review-pill{display:inline-flex;align-items:center;font-size:11.5px;font-weight:500;padding:3px 9px;border-radius:6px;background:#fffbeb;color:#92400e;border:1px solid #f0dfa0}
+.empty-schedule{display:flex;align-items:center;justify-content:center;min-height:110px;color:#ccc;font-size:13px;font-style:italic}
+.toast{position:fixed;bottom:24px;right:24px;background:#222;color:#fff;padding:10px 18px;border-radius:8px;font-size:12.5px;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-avatar"><img src="https://ui-avatars.com/api/?name=CO&background=e8e0ff&color=6c3de8&bold=true&size=40" alt="logo"/></div>
+    <div><div class="brand-name">Content OS</div><div class="brand-sub">SIMPLISCALE</div></div>
+  </div>
+  <nav class="nav">
+    <a href="index.html" class="nav-item active">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg></span>Dashboard
+    </a>
+    <a href="board.html" class="nav-item">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="14" height="14" rx="1.5"/><line x1="7" y1="3" x2="7" y2="17"/><line x1="13" y1="3" x2="13" y2="17"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="3" y1="13" x2="17" y2="13"/></svg></span>Board
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Radar coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/></svg></span>Radar
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Calendar coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="8" x2="18" y2="8"/></svg></span>Calendar
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Signals coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="2,14 6,8 10,11 14,5 18,9"/></svg></span>Signals
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Team coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6"/></svg></span>Team
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-new-content" onclick="location.href='board.html'">+ New Content</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="page-header">
+    <div><p class="page-label">OVERVIEW</p><h1 class="page-title">Dashboard</h1></div>
+    <button class="btn-open-board" onclick="location.href='board.html'">Open Board &nbsp;&#8594;</button>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card" onclick="location.href='board.html'"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg></div><div class="stat-value" id="s0">0</div><div class="stat-label">TOTAL CONTENT</div></div>
+    <div class="stat-card" onclick="location.href='board.html'"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-value" id="s1">0</div><div class="stat-label">ACTIVE PIPELINE</div></div>
+    <div class="stat-card" onclick="location.href='board.html?status=posted'"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="stat-value" id="s2">0</div><div class="stat-label">POSTED / MONTH</div></div>
+    <div class="stat-card" onclick="location.href='board.html?status=idea'"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="stat-value" id="s3">0</div><div class="stat-label">RADAR IDEAS</div></div>
+    <div class="stat-card" onclick="location.href='board.html'"><div class="stat-icon"><svg viewBox="0 0 24 24" fill="none" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg></div><div class="stat-value" id="s4">0</div><div class="stat-label">ASSETS</div></div>
+  </div>
+
+  <div class="charts-row">
+    <div class="chart-card">
+      <h3 class="chart-title">BY CONTENT TYPE</h3>
+      <div class="bar-list" id="bar-list"></div>
+    </div>
+    <div class="status-card">
+      <h3 class="chart-title">BY STATUS</h3>
+      <div class="status-list" id="status-list"></div>
+    </div>
+  </div>
+
+  <div class="bottom-row">
+    <div class="bottom-card">
+      <div class="bottom-card-header">
+        <div class="bottom-card-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg> NEEDS REVIEW</div>
+        <a href="board.html?status=review" class="view-all">View all &#8594;</a>
+      </div>
+      <div class="review-list" id="review-list"></div>
+    </div>
+    <div class="bottom-card">
+      <div class="bottom-card-header">
+        <div class="bottom-card-title"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> UPCOMING SCHEDULE</div>
+        <a href="board.html?status=scheduled" class="view-all">View all &#8594;</a>
+      </div>
+      <div id="schedule-container"></div>
+    </div>
+  </div>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ ACTIVE SUPABASE CLOUD STORAGE ═══
+const SB_URL = 'https://voaspwsythbwpwfnwtcc.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXNwd3N5dGhid3B3Zm53dGNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NDY1NzQsImV4cCI6MjEwMTMyMjU3NH0.92S3vauMNS2bnCYlGB7j84A4JG_KVyrsW9m0-vgK4pk';
+const CLOUD_KEY = 'content_os_board_cards';
+
+let sbClient = null;
+
+function initSupabase() {
+  if (typeof window.supabase !== 'undefined' && SB_URL && SB_KEY) {
+    try {
+      sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+    } catch(e) {}
+  }
+}
+
+// ═══ CONFIGURATION & CONSTANTS ═══
+const PLATFORM_CONFIG = {
+  'IG Reel': { dotCls: 'ig-reel' },
+  'IG Carousel': { dotCls: 'ig-carousel' },
+  'LinkedIn': { dotCls: 'linkedin' },
+  'X / Twitter': { dotCls: 'twitter' },
+  'YouTube Long': { dotCls: 'youtube' }
+};
+
+const STATUS_CONFIG = [
+  { id: 'idea', label: 'Idea', cls: 'idea' },
+  { id: 'scripting', label: 'Scripting', cls: 'scripting' },
+  { id: 'filming', label: 'Filming (Approved)', cls: 'filming' },
+  { id: 'editing', label: 'In Editing', cls: 'editing' },
+  { id: 'review', label: 'For Review', cls: 'review' },
+  { id: 'revision', label: 'Requires Revision', cls: 'revision' },
+  { id: 'scheduled', label: 'Scheduled', cls: 'scheduled' },
+  { id: 'posted', label: 'Posted', cls: 'posted' }
+];
+
+const SEED_DATA = [
+  {colId:'idea',platform:'IG Reel',title:'Reaction Video Three',avatar:null},
+  {colId:'idea',platform:'IG Reel',title:'Reaction Style Video 2',avatar:null},
+  {colId:'idea',platform:'IG Carousel',title:'Gemini 3.7 Flash',avatar:null},
+  {colId:'idea',platform:'IG Reel',title:"Places I've Visited in the Past Year Because of AI Ranked",avatar:null},
+  {colId:'idea',platform:'IG Reel',title:'Reaction Factor Hype Design',avatar:null},
+  {colId:'idea',platform:'LinkedIn',title:'How I Use AI to Plan My Content Week',avatar:null},
+  {colId:'idea',platform:'X / Twitter',title:'Why Most Creators Burn Out (and How AI Saved My Output)',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'$3,000 Video vs One Prompt',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'Seedance 2.5 Single-Take Video',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'Clone Your Voice Locally',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'24-Skill Agent Pack',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'5 Plugins for Claude Code Design',avatar:null},
+  {colId:'scripting',platform:'YouTube Long',title:'AI Automation Masterclass 2025',avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:'The Claude Code Creator Told Everyone to Delete Their CLAUDE.md.',avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:'Gemini 3.7 Flash Is Cheap Until January. Then It Doubles.',avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:"Meta's Back in Open Source. Most People Will Use This Wrong.",avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:'6 Motion Graphics, One Prompt Each, Inside Claude.',avatar:null},
+  {colId:'filming',platform:'IG Reel',title:'Build Your First AI Agent in 10 Minutes',avatar:null},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 6',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 5',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 4',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 3',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 2',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'review',platform:'IG Reel',title:'BROLL claude partner',avatar:{initials:'MZ',cls:'av-p'}},
+  {colId:'review',platform:'IG Reel',title:'Claude Code vs Cowork vs chat',avatar:{initials:'MZ',cls:'av-p'}},
+  {colId:'revision',platform:'IG Reel',title:'AI Tools Comparison 2025 Edition',avatar:{initials:'JD',cls:'av-b'}},
+  {colId:'revision',platform:'LinkedIn',title:'10 Mistakes I Made Growing to 50K',avatar:{initials:'SA',cls:'av-pk'}},
+  {colId:'revision',platform:'IG Carousel',title:'My Full AI Content Stack Revealed',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'scheduled',platform:'IG Reel',title:'How I Shipped 10x More Content With AI This Month',avatar:{initials:'AK',cls:'av-g'}},
+  {colId:'posted',platform:'IG Reel',title:'The Truth About AI Replacing Creators',avatar:{initials:'AK',cls:'av-g'}},
+  {colId:'posted',platform:'YouTube Long',title:"I Used AI for 30 Days - Here's What Happened",avatar:{initials:'MZ',cls:'av-p'}},
+  {colId:'posted',platform:'LinkedIn',title:'5 Reasons Why AI Content Performs Better',avatar:{initials:'JD',cls:'av-b'}},
+  {colId:'posted',platform:'IG Carousel',title:'My Top 7 Prompts for Short-Form Video',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'posted',platform:'X / Twitter',title:'Thread: The AI stack I use to go from idea to post in 2 hours',avatar:{initials:'SA',cls:'av-pk'}},
+];
+
+let cards = [];
+
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function anim(id, target, ms) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const startVal = parseInt(el.textContent.replace(/,/g, ''), 10) || 0;
+  const s = performance.now();
+  function step(n) {
+    const p = Math.min((n - s) / ms, 1);
+    const e = 1 - Math.pow(1 - p, 3);
+    const current = Math.round(startVal + (target - startVal) * e);
+    el.textContent = current.toLocaleString();
+    if (p < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+function loadCards() {
+  const stored = localStorage.getItem('content_os_board_cards');
+  if (stored !== null) {
+    try {
+      cards = JSON.parse(stored);
+    } catch(e) {
+      cards = [];
+    }
+  } else {
+    cards = SEED_DATA.map(item => ({
+      id: 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+      title: item.title,
+      platform: item.platform,
+      colId: item.colId,
+      avatar: item.avatar,
+      priority: 'Medium',
+      notes: "Imagine an AI agent telling your crews exactly when to stop outdoor work. This just launched, and it's a game changer for service businesses.",
+      aiInstructions: '',
+      script: 'Full reel script — hook on the first line',
+      caption: 'Caption for the post',
+      hashtags: '#AI #Automation #Productivity',
+      leadUrl: '',
+      commentKw: 'AI',
+      rawFootage: '',
+      editedDraft: '',
+      supporting: '',
+      postedUrl: '',
+      owner: 'Unassigned',
+      pm: 'Unassigned',
+      videoEditor: 'Unassigned',
+      writer: 'Unassigned',
+      scheduledFor: '',
+      postedAt: '',
+      comments: [],
+      activity: [{ text: 'Created as ' + item.platform, time: new Date().toLocaleString() }]
+    }));
+    try {
+      localStorage.setItem('content_os_board_cards', JSON.stringify(cards));
+    } catch(e) {}
+  }
+}
+
+function renderDashboard() {
+  const totalContent = cards.length;
+  const activePipeline = cards.filter(c => c.colId !== 'posted').length;
+  const postedCount = cards.filter(c => c.colId === 'posted').length;
+  const ideasCount = cards.filter(c => c.colId === 'idea').length;
+  
+  let totalAssets = 0;
+  cards.forEach(c => {
+    if (c.rawFootage && c.rawFootage.trim()) totalAssets++;
+    if (c.editedDraft && c.editedDraft.trim()) totalAssets++;
+    if (c.supporting && c.supporting.trim()) totalAssets++;
+    if (c.postedUrl && c.postedUrl.trim()) totalAssets++;
+  });
+
+  // Animate Top Stat Numbers
+  anim('s0', totalContent, 700);
+  anim('s1', activePipeline, 700);
+  anim('s2', postedCount, 700);
+  anim('s3', ideasCount, 700);
+  anim('s4', totalAssets, 700);
+
+  // ── Render BY CONTENT TYPE ──
+  const platformCounts = {};
+  Object.keys(PLATFORM_CONFIG).forEach(p => platformCounts[p] = 0);
+  cards.forEach(c => {
+    const p = c.platform || 'IG Reel';
+    if (platformCounts[p] !== undefined) {
+      platformCounts[p]++;
+    } else {
+      platformCounts[p] = 1;
+    }
+  });
+
+  const maxPlatformCount = Math.max(...Object.values(platformCounts), 1);
+  const barListEl = document.getElementById('bar-list');
+  if (barListEl) {
+    barListEl.innerHTML = '';
+    Object.keys(platformCounts).forEach((pName, idx) => {
+      const count = platformCounts[pName] || 0;
+      const pct = Math.round((count / maxPlatformCount) * 100);
+      const dotCls = (PLATFORM_CONFIG[pName] && PLATFORM_CONFIG[pName].dotCls) || 'ig-reel';
+      
+      const itemEl = document.createElement('div');
+      itemEl.className = 'bar-item';
+      itemEl.onclick = () => location.href = `board.html?filter=${encodeURIComponent(pName)}`;
+      itemEl.innerHTML = `
+        <div class="bar-label-row">
+          <span class="p-dot ${dotCls}"></span>
+          <span class="bar-name">${escapeHtml(pName)}</span>
+          <span class="bar-count">${count}</span>
+        </div>
+        <div class="bar-track">
+          <div class="bar-fill" data-w="${pct}"></div>
+        </div>
+      `;
+      barListEl.appendChild(itemEl);
+    });
+
+    setTimeout(() => {
+      document.querySelectorAll('.bar-fill').forEach((b, i) => {
+        setTimeout(() => {
+          b.style.width = (b.dataset.w || 0) + '%';
+        }, i * 60);
+      });
+    }, 100);
+  }
+
+  // ── Render BY STATUS ──
+  const statusCounts = {};
+  STATUS_CONFIG.forEach(s => statusCounts[s.id] = 0);
+  cards.forEach(c => {
+    const col = c.colId || 'idea';
+    if (statusCounts[col] !== undefined) {
+      statusCounts[col]++;
+    }
+  });
+
+  const statusListEl = document.getElementById('status-list');
+  if (statusListEl) {
+    statusListEl.innerHTML = '';
+    STATUS_CONFIG.forEach(st => {
+      const count = statusCounts[st.id] || 0;
+      const row = document.createElement('div');
+      row.className = 'status-row';
+      row.onclick = () => location.href = `board.html?status=${st.id}`;
+      row.innerHTML = `
+        <span class="status-tag ${st.cls}">&#9679; ${st.label}</span>
+        <span class="status-count">${count}</span>
+      `;
+      statusListEl.appendChild(row);
+    });
+  }
+
+  // ── Render NEEDS REVIEW ──
+  const reviewCards = cards.filter(c => c.colId === 'review');
+  const reviewListEl = document.getElementById('review-list');
+  if (reviewListEl) {
+    reviewListEl.innerHTML = '';
+    if (reviewCards.length === 0) {
+      reviewListEl.innerHTML = '<div class="empty-schedule"><p>No content waiting for review 🎉</p></div>';
+    } else {
+      reviewCards.slice(0, 5).forEach(c => {
+        const dotCls = (PLATFORM_CONFIG[c.platform] && PLATFORM_CONFIG[c.platform].dotCls) || 'ig-reel';
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        item.onclick = () => location.href = `board.html?card=${c.id}`;
+        item.innerHTML = `
+          <p class="review-title">${escapeHtml(c.title)}</p>
+          <div class="review-tags">
+            <span class="tag-platform"><span class="p-dot ${dotCls}" style="width:11px;height:11px;border-radius:2px"></span> ${escapeHtml(c.platform || 'IG Reel')}</span>
+            <span class="tag-review-pill">&#9679; For Review</span>
+          </div>
+        `;
+        reviewListEl.appendChild(item);
+      });
+    }
+  }
+
+  // ── Render UPCOMING SCHEDULE ──
+  const scheduledCards = cards.filter(c => c.colId === 'scheduled' || (c.scheduledFor && c.scheduledFor.trim() !== ''));
+  const scheduleContainerEl = document.getElementById('schedule-container');
+  if (scheduleContainerEl) {
+    scheduleContainerEl.innerHTML = '';
+    if (scheduledCards.length === 0) {
+      scheduleContainerEl.innerHTML = '<div class="empty-schedule"><p>No scheduled content yet.</p></div>';
+    } else {
+      const scheduleList = document.createElement('div');
+      scheduleList.className = 'review-list';
+      scheduledCards.slice(0, 5).forEach(c => {
+        const dotCls = (PLATFORM_CONFIG[c.platform] && PLATFORM_CONFIG[c.platform].dotCls) || 'ig-reel';
+        const dateStr = c.scheduledFor ? escapeHtml(c.scheduledFor) : 'Scheduled';
+        const item = document.createElement('div');
+        item.className = 'review-item';
+        item.onclick = () => location.href = `board.html?card=${c.id}`;
+        item.innerHTML = `
+          <p class="review-title">${escapeHtml(c.title)}</p>
+          <div class="review-tags">
+            <span class="tag-platform"><span class="p-dot ${dotCls}" style="width:11px;height:11px;border-radius:2px"></span> ${escapeHtml(c.platform || 'IG Reel')}</span>
+            <span class="tag-review-pill" style="background:#ecfdf5;color:#065f46;border-color:#a7f3d0">&#9679; ${dateStr}</span>
+          </div>
+        `;
+        scheduleList.appendChild(item);
+      });
+      scheduleContainerEl.appendChild(scheduleList);
+    }
+  }
+}
+
+async function loadFromSupabase() {
+  if (!sbClient) return;
+  try {
+    const { data, error } = await sbClient.from('emenu_store').select('key,value').eq('key', CLOUD_KEY).single();
+    if (!error && data && Array.isArray(data.value)) {
+      cards = data.value;
+      localStorage.setItem('content_os_board_cards', JSON.stringify(cards));
+      renderDashboard();
+    }
+  } catch(e) {}
+}
+
+function subscribeRealtime() {
+  if (!sbClient) return;
+  try {
+    sbClient
+      .channel('content_os_dash_sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'emenu_store' }, (payload) => {
+        const row = payload.new;
+        if (row && row.key === CLOUD_KEY && Array.isArray(row.value)) {
+          cards = row.value;
+          localStorage.setItem('content_os_board_cards', JSON.stringify(cards));
+          renderDashboard();
+        }
+      })
+      .subscribe();
+  } catch(e) {}
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ── Real-Time Sync on Storage or Window Focus ──
+window.addEventListener('storage', (e) => {
+  if (e.key === 'content_os_board_cards') {
+    loadCards();
+    renderDashboard();
+  }
+});
+
+window.addEventListener('focus', () => {
+  loadCards();
+  renderDashboard();
+  loadFromSupabase();
+});
+
+// ── INIT ──
+initSupabase();
+loadCards();
+renderDashboard();
+loadFromSupabase().then(() => {
+  subscribeRealtime();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate"/>
+<meta http-equiv="Pragma" content="no-cache"/>
+<meta http-equiv="Expires" content="0"/>
+<title>Content OS - Board</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+a{text-decoration:none;color:inherit}
+button,select,input,textarea{font-family:inherit;cursor:pointer}
+input,textarea{cursor:text}
+body{font-family:'Inter',sans-serif;font-size:13px;color:#1a1a1a;background:#f7f7f7;display:flex;overflow:hidden;height:100vh}
+
+/* ── SIDEBAR ── */
+.sidebar{width:162px;min-width:162px;background:#fff;border-right:1px solid #ebebeb;display:flex;flex-direction:column;padding:18px 0 20px;height:100vh;flex-shrink:0;z-index:10}
+.brand{display:flex;align-items:center;gap:9px;padding:0 14px 18px;border-bottom:1px solid #f0f0f0;margin-bottom:6px}
+.brand-avatar img{width:34px;height:34px;border-radius:8px;display:block}
+.brand-name{font-size:12.5px;font-weight:600;color:#111;line-height:1.3}
+.brand-sub{font-size:9px;font-weight:600;color:#bbb;letter-spacing:.06em}
+.nav{display:flex;flex-direction:column;gap:1px;padding:0 8px;flex:1}
+.nav-item{display:flex;align-items:center;gap:9px;padding:8px 10px;border-radius:8px;font-size:13px;font-weight:500;color:#666;transition:background .15s,color .15s;cursor:pointer}
+.nav-item:hover{background:#fdf3ec;color:#e85d00}
+.nav-item.active{background:#fde8d8;color:#e85d00;font-weight:600}
+.nav-icon{width:16px;height:16px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-icon svg{width:15px;height:15px}
+.sidebar-footer{padding:12px 12px 0}
+.btn-new-content{display:block;width:100%;padding:9px 0;background:#ff6b00;color:#fff;font-size:12.5px;font-weight:600;border:none;border-radius:8px;transition:background .15s}
+.btn-new-content:hover{background:#e05e00}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;position:relative}
+
+/* ── TOPBAR ── */
+.topbar{background:#fff;border-bottom:1px solid #ebebeb;padding:16px 26px 0;flex-shrink:0}
+.topbar-header-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.page-label{font-size:10px;font-weight:600;color:#bbb;letter-spacing:.08em;margin-bottom:2px}
+.page-title{font-size:22px;font-weight:700;color:#111;letter-spacing:-.4px}
+
+.topbar-controls{display:flex;align-items:center;gap:8px;padding-bottom:14px}
+.filter-group{display:flex;align-items:center;background:#f3f3f3;border:1px solid #e8e8e8;border-radius:9px;padding:3px;gap:1px}
+.filter-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:7px;font-size:12px;font-weight:500;color:#777;background:transparent;border:none;transition:background .15s,color .15s;white-space:nowrap}
+.filter-btn:hover{background:#fff;color:#333}
+.filter-btn.active{background:#fff;color:#111;font-weight:600;box-shadow:0 1px 4px rgba(0,0,0,.08)}
+.fdot{width:8px;height:8px;border-radius:2px;flex-shrink:0;display:inline-block}
+.fdot.ig-reel{background:linear-gradient(135deg,#e040fb,#ff5252)}
+.fdot.ig-carousel{background:linear-gradient(135deg,#7e57c2,#ff4081)}
+.fdot.linkedin{background:#0077b5}
+.fdot.twitter{background:#111}
+.fdot.youtube{background:linear-gradient(135deg,#1a73e8,#42a5f5)}
+.spacer{flex:1}
+.writer-select{padding:7px 28px 7px 11px;border:1px solid #e0e0e0;border-radius:8px;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 9px center;font-size:12px;font-weight:500;color:#333;appearance:none}
+
+.btn-clear{display:inline-flex;align-items:center;gap:4px;padding:7px 12px;background:#fee2e2;color:#991b1b;border:1px solid #fecaca;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;transition:background .15s}
+.btn-clear:hover{background:#fecaca}
+
+.btn-new{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;background:#ff6b00;color:#fff;font-size:12.5px;font-weight:600;border:none;border-radius:8px;transition:background .15s}
+.btn-new:hover{background:#e05e00}
+
+/* ── BOARD ── */
+.board-wrapper{flex:1;overflow-x:auto;overflow-y:hidden;padding:18px 22px}
+.board{display:flex;gap:12px;height:100%;min-width:max-content}
+
+/* ── COLUMN ── */
+.col{width:265px;min-width:265px;display:flex;flex-direction:column;height:100%;transition:background .3s}
+.col.highlight{background:#fff8f0;border-radius:10px;padding:4px}
+.col-header{display:flex;align-items:center;gap:7px;margin-bottom:10px;padding:0 2px}
+.col-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
+.col-title{font-size:12.5px;font-weight:600;flex:1}
+.col-count{font-size:12px;font-weight:500;color:#bbb}
+.col-idea .col-dot{background:#a78bfa}.col-idea .col-title{color:#6d28d9}
+.col-scripting .col-dot{background:#60a5fa}.col-scripting .col-title{color:#1d4ed8}
+.col-filming .col-dot{background:#f472b6}.col-filming .col-title{color:#be185d}
+.col-editing .col-dot{background:#fb923c}.col-editing .col-title{color:#c2410c}
+.col-review .col-dot{background:#fbbf24}.col-review .col-title{color:#92400e}
+.col-revision .col-dot{background:#f87171}.col-revision .col-title{color:#b91c1c}
+.col-scheduled .col-dot{background:#34d399}.col-scheduled .col-title{color:#065f46}
+.col-posted .col-dot{background:#6ee7b7}.col-posted .col-title{color:#047857}
+.col-cards{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;padding-right:2px}
+.col-cards::-webkit-scrollbar{width:3px}
+.col-cards::-webkit-scrollbar-thumb{background:#ddd;border-radius:2px}
+
+/* ── CARD ── */
+.card{background:#fff;border:1px solid #eee;border-radius:10px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;transition:box-shadow .15s,border-color .15s;cursor:pointer;position:relative;user-select:none}
+.card:hover{box-shadow:0 3px 12px rgba(0,0,0,.09);border-color:#ddd}
+.card-del{position:absolute;top:8px;right:8px;width:18px;height:18px;border-radius:50%;background:#f0f0f0;border:none;color:#aaa;font-size:12px;display:none;align-items:center;justify-content:center;line-height:1;padding:0;transition:background .15s,color .15s;cursor:pointer;z-index:2}
+.card:hover .card-del{display:flex}
+.card-del:hover{background:#fecaca;color:#b91c1c}
+.card-platform{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:500;color:#777}
+.p-icon{width:13px;height:13px;border-radius:3px;flex-shrink:0;display:inline-block}
+.p-icon.ig-reel{background:linear-gradient(135deg,#e040fb,#ff5252)}
+.p-icon.ig-carousel{background:linear-gradient(135deg,#7e57c2,#ff4081)}
+.p-icon.linkedin{background:#0077b5}
+.p-icon.twitter{background:#111}
+.p-icon.youtube{background:linear-gradient(135deg,#1a73e8,#42a5f5)}
+.card-title{font-size:13px;font-weight:600;color:#111;line-height:1.45;padding-right:16px}
+.card-footer{display:flex;align-items:center;justify-content:space-between}
+.card-avatar{width:24px;height:24px;border-radius:50%;font-size:8.5px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.av-o{background:#ff6b00}.av-p{background:#7c3aed}.av-b{background:#2563eb}.av-g{background:#059669}.av-pk{background:#db2777}
+.card-status{font-size:10.5px;font-weight:500;border:1px solid #e8e8e8;border-radius:6px;padding:3px 18px 3px 8px;color:#555;background:#fafafa url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 5px center;appearance:none;cursor:pointer}
+.add-card-btn{display:flex;align-items:center;gap:6px;margin-top:4px;padding:8px 6px;font-size:12px;font-weight:500;color:#c0c0c0;background:transparent;border:none;border-radius:8px;width:100%;transition:background .15s,color .15s;cursor:pointer}
+.add-card-btn:hover{background:#efefef;color:#888}
+
+/* ── INLINE ADD FORM ── */
+.add-form{background:#fff;border:1px solid #d0d0d0;border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.add-form select,.add-form input{width:100%;padding:7px 10px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;color:#333;outline:none;background:#fff}
+.add-form input:focus,.add-form select:focus{border-color:#ff6b00}
+.add-form-actions{display:flex;gap:6px}
+.form-submit{flex:1;padding:7px;background:#ff6b00;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer}
+.form-submit:hover{background:#e05e00}
+.form-cancel{padding:7px 12px;background:#f5f5f5;color:#666;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;cursor:pointer}
+
+/* ── MODALS ── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.35);display:none;align-items:center;justify-content:center;z-index:200;backdrop-filter:blur(2px)}
+.modal-overlay.open{display:flex}
+.modal{background:#fff;border-radius:14px;padding:28px;width:460px;max-width:95vw;box-shadow:0 20px 60px rgba(0,0,0,.18);animation:mIn .2s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.96) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-title{font-size:17px;font-weight:700;color:#111;margin-bottom:20px}
+.modal-field{display:flex;flex-direction:column;gap:6px;margin-bottom:16px}
+.modal-label{font-size:11.5px;font-weight:600;color:#666;letter-spacing:.04em}
+.modal-input,.modal-select{width:100%;padding:9px 12px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:13px;color:#111;outline:none;transition:border-color .15s;background:#fff}
+.modal-input:focus,.modal-select:focus{border-color:#ff6b00}
+.modal-select{appearance:none;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 11px center}
+.modal-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:6px}
+.modal-cancel{padding:9px 18px;background:#f5f5f5;color:#555;border:1px solid #e0e0e0;border-radius:8px;font-size:13px;font-weight:500;cursor:pointer}
+.modal-cancel:hover{background:#ebebeb}
+.modal-submit{padding:9px 22px;background:#ff6b00;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer}
+.modal-submit:hover{background:#e05e00}
+
+/* ── DETAIL VIEW ── */
+.detail-view{display:none;flex-direction:column;flex:1;overflow-y:auto;background:#f9f9f9}
+.detail-view.open{display:flex}
+.detail-topbar{background:#fff;border-bottom:1px solid #ebebeb;padding:12px 28px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:5}
+.btn-back{display:inline-flex;align-items:center;gap:6px;padding:7px 14px;background:#fff;border:1px solid #e0e0e0;border-radius:8px;font-size:12.5px;font-weight:500;color:#444;cursor:pointer;transition:background .15s,border-color .15s}
+.btn-back:hover{background:#f5f5f5;border-color:#ccc}
+.detail-actions{display:flex;align-items:center;gap:8px}
+.btn-produce{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1.5px solid #ff6b00;border-radius:8px;font-size:12.5px;font-weight:600;color:#ff6b00;background:#fff;cursor:pointer;transition:background .15s}
+.btn-produce:hover{background:#fff8f0}
+.btn-repurpose{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:12.5px;font-weight:500;color:#555;background:#fff;cursor:pointer;transition:background .15s}
+.btn-repurpose:hover{background:#f5f5f5}
+.btn-del-detail{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1.5px solid #fecaca;border-radius:8px;font-size:12.5px;font-weight:500;color:#b91c1c;background:#fff;cursor:pointer;transition:background .15s}
+.btn-del-detail:hover{background:#fff1f2}
+.btn-save{display:inline-flex;align-items:center;gap:5px;padding:7px 16px;background:#ff6b00;border:none;border-radius:8px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;transition:background .15s}
+.btn-save:hover{background:#e05e00}
+
+.detail-body{display:flex;gap:24px;padding:24px 28px 48px;align-items:flex-start}
+.detail-main{flex:1;display:flex;flex-direction:column;gap:18px;min-width:0}
+.detail-sidebar{width:280px;min-width:280px;display:flex;flex-direction:column;gap:16px}
+
+.source-banner{background:#fffbf0;border:1px solid #ffe4b5;border-radius:10px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.source-label{font-size:10px;font-weight:700;color:#ff6b00;letter-spacing:.07em;display:flex;align-items:center;gap:5px}
+.source-title{font-size:13.5px;font-weight:600;color:#111}
+.source-desc{font-size:12px;color:#888;font-style:italic;line-height:1.5}
+.source-tags{display:flex;align-items:center;gap:8px;margin-top:2px}
+.source-badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:5px;font-size:11px;font-weight:600;background:#f0f0f0;color:#555}
+.source-link{font-size:11.5px;color:#2563eb;cursor:pointer;text-decoration:underline}
+
+.d-title-input{font-size:26px;font-weight:700;color:#111;letter-spacing:-.4px;border:none;outline:none;width:100%;background:transparent;padding:4px 0;border-bottom:2px solid transparent;transition:border-color .2s}
+.d-title-input:focus{border-bottom-color:#ff6b00}
+.d-dropdowns{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.d-select{padding:6px 28px 6px 10px;border:1.5px solid #e0e0e0;border-radius:8px;font-size:12.5px;font-weight:500;color:#333;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center;appearance:none;cursor:pointer;transition:border-color .15s}
+.d-select:focus{outline:none;border-color:#ff6b00}
+
+.d-section{background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:12px}
+.d-section-title{font-size:11px;font-weight:700;color:#999;letter-spacing:.08em}
+.d-label{font-size:11px;font-weight:600;color:#888;letter-spacing:.04em;margin-bottom:4px}
+.d-textarea{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px 12px;font-size:13px;color:#111;line-height:1.5;resize:vertical;outline:none;min-height:80px;font-family:inherit;transition:border-color .15s;background:#fafafa}
+.d-textarea:focus{border-color:#ff6b00;background:#fff}
+.d-input{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:9px 12px;font-size:13px;color:#111;outline:none;font-family:inherit;transition:border-color .15s;background:#fafafa}
+.d-input:focus{border-color:#ff6b00;background:#fff}
+
+.ai-script-section{background:#fff;border:1.5px solid #ffe0b0;border-radius:12px;padding:18px 20px;display:flex;flex-direction:column;gap:10px}
+.ai-script-header{display:flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:#e07000}
+.ai-script-desc{font-size:12px;color:#aaa;line-height:1.5}
+.ai-textarea{width:100%;border:1px solid #e8e8e8;border-radius:8px;padding:10px 12px;font-size:12px;color:#555;line-height:1.5;resize:vertical;outline:none;min-height:70px;font-family:inherit;font-style:italic;background:#fafafa;transition:border-color .15s}
+.ai-textarea:focus{border-color:#ff6b00;background:#fff}
+
+.d-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+
+.assets-box{background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:16px 20px}
+.assets-box-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.assets-box-title{font-size:11.5px;font-weight:700;color:#555;display:flex;align-items:center;gap:6px}
+.assets-box-empty{font-size:12.5px;color:#bbb;text-align:center;padding:16px 0}
+
+.comments-box{background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:16px 20px}
+.comments-header{font-size:11.5px;font-weight:700;color:#555;display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.comments-empty{font-size:12.5px;color:#bbb;text-align:center;padding:12px 0}
+.comment-input-row{display:flex;align-items:center;gap:8px;margin-top:14px;border-top:1px solid #f0f0f0;padding-top:14px}
+.comment-author-select{padding:6px 24px 6px 8px;border:1px solid #e0e0e0;border-radius:7px;font-size:12px;color:#333;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 6px center;appearance:none;flex-shrink:0}
+.comment-text-input{flex:1;padding:7px 12px;border:1px solid #e0e0e0;border-radius:7px;font-size:12.5px;color:#111;outline:none;transition:border-color .15s}
+.comment-text-input:focus{border-color:#ff6b00}
+.comment-send-btn{width:34px;height:34px;background:#ff6b00;border:none;border-radius:8px;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;cursor:pointer;transition:background .15s}
+.comment-send-btn:hover{background:#e05e00}
+.comment-item{padding:10px 0;border-bottom:1px solid #f5f5f5;display:flex;flex-direction:column;gap:4px}
+.comment-item:last-child{border-bottom:none}
+.comment-meta{font-size:11px;color:#aaa}
+.comment-meta strong{color:#555}
+.comment-body{font-size:13px;color:#333;line-height:1.4}
+
+.sb-panel{background:#fff;border:1px solid #ebebeb;border-radius:12px;padding:16px 18px;display:flex;flex-direction:column;gap:12px}
+.sb-panel-title{font-size:11px;font-weight:700;color:#999;letter-spacing:.08em}
+.sb-field{display:flex;flex-direction:column;gap:4px}
+.sb-label{font-size:10.5px;font-weight:600;color:#aaa;letter-spacing:.05em}
+.sb-select{width:100%;padding:7px 28px 7px 10px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:12.5px;color:#333;background:#fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='%23aaa' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E") no-repeat right 8px center;appearance:none;cursor:pointer;transition:border-color .15s}
+.sb-select:focus{outline:none;border-color:#ff6b00}
+.sb-input{width:100%;padding:7px 10px;border:1.5px solid #e8e8e8;border-radius:8px;font-size:12.5px;color:#333;outline:none;background:#fff;transition:border-color .15s}
+.sb-input:focus{border-color:#ff6b00}
+
+.metrics-empty{font-size:12px;color:#bbb;line-height:1.5}
+.activity-list{display:flex;flex-direction:column;gap:10px}
+.activity-text{font-size:12px;color:#2563eb;line-height:1.4;cursor:pointer}
+.activity-text:hover{text-decoration:underline}
+.activity-time{font-size:11px;color:#bbb;margin-top:2px}
+
+.toast{position:fixed;bottom:24px;right:24px;background:#222;color:#fff;padding:10px 18px;border-radius:8px;font-size:12.5px;font-weight:500;opacity:0;transform:translateY(8px);transition:opacity .25s,transform .25s;z-index:9999;pointer-events:none}
+.toast.show{opacity:1;transform:translateY(0)}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-avatar"><img src="https://ui-avatars.com/api/?name=CO&background=e8e0ff&color=6c3de8&bold=true&size=40" alt="logo"/></div>
+    <div><div class="brand-name">Content OS</div><div class="brand-sub">SIMPLISCALE</div></div>
+  </div>
+  <nav class="nav">
+    <a href="index.html" class="nav-item">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><rect x="2" y="2" width="7" height="7" rx="1.5"/><rect x="11" y="2" width="7" height="7" rx="1.5"/><rect x="2" y="11" width="7" height="7" rx="1.5"/><rect x="11" y="11" width="7" height="7" rx="1.5"/></svg></span>Dashboard
+    </a>
+    <a href="board.html" class="nav-item active">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="3" width="14" height="14" rx="1.5"/><line x1="7" y1="3" x2="7" y2="17"/><line x1="13" y1="3" x2="13" y2="17"/><line x1="3" y1="8" x2="17" y2="8"/><line x1="3" y1="13" x2="17" y2="13"/></svg></span>Board
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Radar coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="10" r="7"/><circle cx="10" cy="10" r="3"/></svg></span>Radar
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Calendar coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="4" width="16" height="14" rx="1.5"/><line x1="2" y1="8" x2="18" y2="8"/></svg></span>Calendar
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Signals coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><polyline points="2,14 6,8 10,11 14,5 18,9"/></svg></span>Signals
+    </a>
+    <a href="#" class="nav-item" onclick="showToast('Team coming soon!');return false">
+      <span class="nav-icon"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="10" cy="7" r="3"/><path d="M4 17c0-3.314 2.686-6 6-6s6 2.686 6 6"/></svg></span>Team
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <button class="btn-new-content" onclick="openModal()">+ New Content</button>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<div class="main" id="main">
+
+  <!-- ══ BOARD MODE ══ -->
+  <div id="board-mode" style="display:flex;flex-direction:column;flex:1;overflow:hidden">
+    <div class="topbar">
+      <div class="topbar-header-row">
+        <div>
+          <p class="page-label">WORKFLOW</p>
+          <h1 class="page-title">Board</h1>
+        </div>
+      </div>
+      <div class="topbar-controls">
+        <div class="filter-group">
+          <button class="filter-btn active" onclick="setFilter('All',this)">All</button>
+          <button class="filter-btn" onclick="setFilter('IG Reel',this)"><span class="fdot ig-reel"></span> IG Reel</button>
+          <button class="filter-btn" onclick="setFilter('IG Carousel',this)"><span class="fdot ig-carousel"></span> IG Carousel</button>
+          <button class="filter-btn" onclick="setFilter('LinkedIn',this)"><span class="fdot linkedin"></span> LinkedIn</button>
+          <button class="filter-btn" onclick="setFilter('X / Twitter',this)"><span class="fdot twitter"></span> X / Twitter</button>
+          <button class="filter-btn" onclick="setFilter('YouTube Long',this)"><span class="fdot youtube"></span> YouTube Long</button>
+        </div>
+        <div class="spacer"></div>
+        <select class="writer-select"><option>All Writers</option><option>Writer A</option><option>Writer B</option></select>
+        <button class="btn-clear" onclick="clearAllCards()" title="Delete all cards">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg> Clear Board
+        </button>
+        <button class="btn-new" onclick="openModal()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> New
+        </button>
+      </div>
+    </div>
+    <div class="board-wrapper">
+      <div class="board">
+        <div class="col col-idea" id="col-idea"><div class="col-header"><span class="col-dot"></span><span class="col-title">Idea</span><span class="col-count" id="cnt-idea">0</span></div><div class="col-cards" id="cards-idea"></div><button class="add-card-btn" onclick="showAddForm('idea')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-scripting" id="col-scripting"><div class="col-header"><span class="col-dot"></span><span class="col-title">Scripting</span><span class="col-count" id="cnt-scripting">0</span></div><div class="col-cards" id="cards-scripting"></div><button class="add-card-btn" onclick="showAddForm('scripting')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-filming" id="col-filming"><div class="col-header"><span class="col-dot"></span><span class="col-title">Filming (Approved)</span><span class="col-count" id="cnt-filming">0</span></div><div class="col-cards" id="cards-filming"></div><button class="add-card-btn" onclick="showAddForm('filming')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-editing" id="col-editing"><div class="col-header"><span class="col-dot"></span><span class="col-title">In Editing</span><span class="col-count" id="cnt-editing">0</span></div><div class="col-cards" id="cards-editing"></div><button class="add-card-btn" onclick="showAddForm('editing')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-review" id="col-review"><div class="col-header"><span class="col-dot"></span><span class="col-title">For Review</span><span class="col-count" id="cnt-review">0</span></div><div class="col-cards" id="cards-review"></div><button class="add-card-btn" onclick="showAddForm('review')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-revision" id="col-revision"><div class="col-header"><span class="col-dot"></span><span class="col-title">Requires Revision</span><span class="col-count" id="cnt-revision">0</span></div><div class="col-cards" id="cards-revision"></div><button class="add-card-btn" onclick="showAddForm('revision')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-scheduled" id="col-scheduled"><div class="col-header"><span class="col-dot"></span><span class="col-title">Scheduled</span><span class="col-count" id="cnt-scheduled">0</span></div><div class="col-cards" id="cards-scheduled"></div><button class="add-card-btn" onclick="showAddForm('scheduled')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+        <div class="col col-posted" id="col-posted"><div class="col-header"><span class="col-dot"></span><span class="col-title">Posted</span><span class="col-count" id="cnt-posted">0</span></div><div class="col-cards" id="cards-posted"></div><button class="add-card-btn" onclick="showAddForm('posted')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Add card</button></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ DETAIL MODE ══ -->
+  <div class="detail-view" id="detail-view">
+    <div class="detail-topbar">
+      <button class="btn-back" onclick="closeDetail()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg> Back
+      </button>
+      <div class="detail-actions">
+        <button class="btn-produce" onclick="showToast('Produce triggered!')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Produce
+        </button>
+        <button class="btn-repurpose" onclick="showToast('Repurpose triggered!')">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg> Repurpose
+        </button>
+        <button class="btn-del-detail" onclick="deleteFromDetail()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg> Delete
+        </button>
+        <button class="btn-save" onclick="saveDetail()">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Save
+        </button>
+      </div>
+    </div>
+
+    <div class="detail-body">
+      <div class="detail-main">
+        <div class="source-banner">
+          <div class="source-label">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            SOURCE (IDEA FROM RADAR)
+          </div>
+          <div class="source-title" id="d-source-title">Idea source</div>
+          <div class="source-desc" id="d-source-desc">No source description yet.</div>
+          <div class="source-tags">
+            <span class="source-badge">PVN 95</span>
+            <span class="source-badge">Biz relevance 98</span>
+            <span class="source-link">Source &#8599;</span>
+          </div>
+        </div>
+
+        <input class="d-title-input" id="d-title" type="text" placeholder="Content title..."/>
+
+        <div class="d-dropdowns">
+          <select class="d-select" id="d-platform">
+            <option>IG Reel</option><option>IG Carousel</option><option>LinkedIn</option><option>X / Twitter</option><option>YouTube Long</option>
+          </select>
+          <select class="d-select" id="d-status">
+            <option value="idea">Idea</option><option value="scripting">Scripting</option><option value="filming">Filming</option>
+            <option value="editing">In Editing</option><option value="review">For Review</option>
+            <option value="revision">Requires Revision</option><option value="scheduled">Scheduled</option><option value="posted">Posted</option>
+          </select>
+          <select class="d-select" id="d-priority">
+            <option>Low</option><option selected>Medium</option><option>High</option>
+          </select>
+        </div>
+
+        <div class="d-section">
+          <div class="d-section-title">NOTES</div>
+          <textarea class="d-textarea" id="d-notes" rows="4" placeholder="Add your notes here..."></textarea>
+        </div>
+
+        <div class="ai-script-section">
+          <div class="ai-script-header">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#e07000" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            AI SCRIPT &mdash; <span id="d-ai-platform-label">IG REEL</span>
+          </div>
+          <div class="ai-script-desc">Writes IG Reel copy from this card (notes, source idea, existing draft) using the viral frameworks, straight into the fields below.</div>
+          <textarea class="ai-textarea" id="d-ai-instructions" placeholder="Optional: tell the AI how to write or improve it (e.g. punchier hook, focus on the lead-gen angle, this one is not good re-script it around X). Leave blank to just use the card's info."></textarea>
+        </div>
+
+        <div class="d-section">
+          <div class="d-section-title">COPY</div>
+          <div>
+            <div class="d-label">SCRIPT</div>
+            <textarea class="d-textarea" id="d-script" rows="5" placeholder="Full reel script &mdash; hook on the first line"></textarea>
+          </div>
+          <div>
+            <div class="d-label">CAPTION</div>
+            <textarea class="d-textarea" id="d-caption" rows="4" placeholder="Caption for the post"></textarea>
+          </div>
+          <div>
+            <div class="d-label">HASHTAGS</div>
+            <input class="d-input" id="d-hashtags" type="text" placeholder="#AI #Automation #Productivity"/>
+          </div>
+        </div>
+
+        <div class="d-section">
+          <div class="d-section-title">LEAD MAGNET (OPTIONAL)</div>
+          <div>
+            <div class="d-label">LEAD MAGNET URL</div>
+            <input class="d-input" id="d-lead-url" type="url" placeholder="https://..."/>
+          </div>
+          <div>
+            <div class="d-label">COMMENT KEYWORD</div>
+            <input class="d-input" id="d-comment-kw" type="text" placeholder="e.g. AI"/>
+          </div>
+        </div>
+
+        <div class="d-section">
+          <div class="d-section-title">ASSETS</div>
+          <div class="d-grid-2">
+            <div>
+              <div class="d-label">RAW FOOTAGE</div>
+              <input class="d-input" id="d-raw-footage" type="url" placeholder="https://..."/>
+            </div>
+            <div>
+              <div class="d-label">EDITED DRAFT</div>
+              <input class="d-input" id="d-edited-draft" type="url" placeholder="https://..."/>
+            </div>
+            <div>
+              <div class="d-label">SUPPORTING ASSETS</div>
+              <input class="d-input" id="d-supporting" type="url" placeholder="https://..."/>
+            </div>
+            <div>
+              <div class="d-label">POSTED URL</div>
+              <input class="d-input" id="d-posted-url" type="url" placeholder="https://..."/>
+            </div>
+          </div>
+        </div>
+
+        <div class="assets-box">
+          <div class="assets-box-header">
+            <div class="assets-box-title">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              ASSETS (<span id="d-asset-count">0</span>)
+            </div>
+            <button class="btn-produce" style="font-size:11px;padding:4px 10px" onclick="showToast('Produce triggered')">
+              <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Produce
+            </button>
+          </div>
+          <div class="assets-box-empty">No assets yet. Open Studio to produce carousel copy, scripts, and more.</div>
+        </div>
+
+        <div class="comments-box">
+          <div class="comments-header">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#888" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            COMMENTS (<span id="d-comment-count">0</span>)
+          </div>
+          <div class="comments-empty" id="d-comments-empty">No comments yet.</div>
+          <div id="d-comments-list"></div>
+          <div class="comment-input-row">
+            <select class="comment-author-select" id="d-comment-author">
+              <option>Nick</option><option>Alex</option><option>Sam</option><option>Jordan</option>
+            </select>
+            <input class="comment-text-input" id="d-comment-text" type="text" placeholder="Add a comment / revision note"/>
+            <button class="comment-send-btn" onclick="addComment()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="detail-sidebar">
+        <div class="sb-panel">
+          <div class="sb-panel-title">ASSIGNED TEAM</div>
+          <div class="sb-field"><div class="sb-label">OWNER</div><select class="sb-select" id="d-owner"><option>Unassigned</option><option>Nick</option><option>Alex</option><option>Sam</option><option>Jordan</option></select></div>
+          <div class="sb-field"><div class="sb-label">PROJECT MANAGER / REVIEWER</div><select class="sb-select" id="d-pm"><option>Unassigned</option><option>Nick</option><option>Alex</option><option>Sam</option><option>Jordan</option></select></div>
+          <div class="sb-field"><div class="sb-label">VIDEO EDITOR</div><select class="sb-select" id="d-video-editor"><option>Unassigned</option><option>Nick</option><option>Alex</option><option>Sam</option><option>Jordan</option></select></div>
+          <div class="sb-field"><div class="sb-label">CONTENT / WRITER</div><select class="sb-select" id="d-writer"><option>Unassigned</option><option>Nick</option><option>Alex</option><option>Sam</option><option>Jordan</option></select></div>
+        </div>
+
+        <div class="sb-panel">
+          <div class="sb-panel-title">SCHEDULE</div>
+          <div class="sb-field"><div class="sb-label">SCHEDULED FOR</div><input class="sb-input" id="d-scheduled-for" type="date"/></div>
+          <div class="sb-field"><div class="sb-label">POSTED AT</div><input class="sb-input" id="d-posted-at" type="date"/></div>
+        </div>
+
+        <div class="sb-panel">
+          <div class="sb-panel-title" style="display:flex;align-items:center;gap:6px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            METRICS
+          </div>
+          <div class="metrics-empty">No post-publish metrics yet. Wired to GA4 / IG in Signals later.</div>
+        </div>
+
+        <div class="sb-panel">
+          <div class="sb-panel-title" style="display:flex;align-items:center;gap:6px">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            ACTIVITY
+          </div>
+          <div class="activity-list" id="d-activity-list"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NEW CONTENT MODAL ══ -->
+<div class="modal-overlay" id="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-title">New Content</div>
+    <div class="modal-field"><label class="modal-label">TITLE</label><input class="modal-input" id="m-title" type="text" placeholder="Enter content title..."/></div>
+    <div class="modal-field"><label class="modal-label">PLATFORM</label><select class="modal-select" id="m-platform"><option>IG Reel</option><option>IG Carousel</option><option>LinkedIn</option><option>X / Twitter</option><option>YouTube Long</option></select></div>
+    <div class="modal-field"><label class="modal-label">STATUS</label><select class="modal-select" id="m-status"><option value="idea">Idea</option><option value="scripting">Scripting</option><option value="filming">Filming</option><option value="editing">In Editing</option><option value="review">For Review</option><option value="revision">Requires Revision</option><option value="scheduled">Scheduled</option><option value="posted">Posted</option></select></div>
+    <div class="modal-actions">
+      <button class="modal-cancel" onclick="closeModal()">Cancel</button>
+      <button class="modal-submit" onclick="submitModal()">Create Content</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══ ACTIVE SUPABASE CLOUD STORAGE ═══
+const SB_URL = 'https://voaspwsythbwpwfnwtcc.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZvYXNwd3N5dGhid3B3Zm53dGNjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODU3NDY1NzQsImV4cCI6MjEwMTMyMjU3NH0.92S3vauMNS2bnCYlGB7j84A4JG_KVyrsW9m0-vgK4pk';
+const CLOUD_KEY = 'content_os_board_cards';
+const CLIENT_ID = Math.random().toString(36).slice(2) + Date.now().toString(36);
+
+let sbClient = null;
+let cloudSyncTimer = null;
+
+function initSupabase() {
+  if (typeof window.supabase !== 'undefined' && SB_URL && SB_KEY) {
+    try {
+      sbClient = window.supabase.createClient(SB_URL, SB_KEY);
+      console.log('⚡ Connected to active Supabase Cloud:', SB_URL);
+    } catch(e) {}
+  }
+}
+
+// ═══ CONSTANTS & SEED DATA ═══
+const PLATFORM_ICON = {'IG Reel':'ig-reel','IG Carousel':'ig-carousel','LinkedIn':'linkedin','X / Twitter':'twitter','YouTube Long':'youtube'};
+const STATUS_TO_COL = {'Idea':'idea','Scripting':'scripting','Filming':'filming','In Editing':'editing','For Review':'review','Requires Revision':'revision','Scheduled':'scheduled','Posted':'posted'};
+const COL_TO_STATUS = {idea:'Idea',scripting:'Scripting',filming:'Filming',editing:'In Editing',review:'For Review',revision:'Requires Revision',scheduled:'Scheduled',posted:'Posted'};
+
+const SEED_DATA = [
+  {colId:'idea',platform:'IG Reel',title:'Reaction Video Three',avatar:null},
+  {colId:'idea',platform:'IG Reel',title:'Reaction Style Video 2',avatar:null},
+  {colId:'idea',platform:'IG Carousel',title:'Gemini 3.7 Flash',avatar:null},
+  {colId:'idea',platform:'IG Reel',title:"Places I've Visited in the Past Year Because of AI Ranked",avatar:null},
+  {colId:'idea',platform:'IG Reel',title:'Reaction Factor Hype Design',avatar:null},
+  {colId:'idea',platform:'LinkedIn',title:'How I Use AI to Plan My Content Week',avatar:null},
+  {colId:'idea',platform:'X / Twitter',title:'Why Most Creators Burn Out (and How AI Saved My Output)',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'$3,000 Video vs One Prompt',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'Seedance 2.5 Single-Take Video',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'Clone Your Voice Locally',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'24-Skill Agent Pack',avatar:null},
+  {colId:'scripting',platform:'IG Reel',title:'5 Plugins for Claude Code Design',avatar:null},
+  {colId:'scripting',platform:'YouTube Long',title:'AI Automation Masterclass 2025',avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:'The Claude Code Creator Told Everyone to Delete Their CLAUDE.md.',avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:'Gemini 3.7 Flash Is Cheap Until January. Then It Doubles.',avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:"Meta's Back in Open Source. Most People Will Use This Wrong.",avatar:null},
+  {colId:'filming',platform:'YouTube Long',title:'6 Motion Graphics, One Prompt Each, Inside Claude.',avatar:null},
+  {colId:'filming',platform:'IG Reel',title:'Build Your First AI Agent in 10 Minutes',avatar:null},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 6',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 5',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 4',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 3',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'editing',platform:'IG Reel',title:'B-roll 2',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'review',platform:'IG Reel',title:'BROLL claude partner',avatar:{initials:'MZ',cls:'av-p'}},
+  {colId:'review',platform:'IG Reel',title:'Claude Code vs Cowork vs chat',avatar:{initials:'MZ',cls:'av-p'}},
+  {colId:'revision',platform:'IG Reel',title:'AI Tools Comparison 2025 Edition',avatar:{initials:'JD',cls:'av-b'}},
+  {colId:'revision',platform:'LinkedIn',title:'10 Mistakes I Made Growing to 50K',avatar:{initials:'SA',cls:'av-pk'}},
+  {colId:'revision',platform:'IG Carousel',title:'My Full AI Content Stack Revealed',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'scheduled',platform:'IG Reel',title:'How I Shipped 10x More Content With AI This Month',avatar:{initials:'AK',cls:'av-g'}},
+  {colId:'posted',platform:'IG Reel',title:'The Truth About AI Replacing Creators',avatar:{initials:'AK',cls:'av-g'}},
+  {colId:'posted',platform:'YouTube Long',title:"I Used AI for 30 Days - Here's What Happened",avatar:{initials:'MZ',cls:'av-p'}},
+  {colId:'posted',platform:'LinkedIn',title:'5 Reasons Why AI Content Performs Better',avatar:{initials:'JD',cls:'av-b'}},
+  {colId:'posted',platform:'IG Carousel',title:'My Top 7 Prompts for Short-Form Video',avatar:{initials:'AI',cls:'av-o'}},
+  {colId:'posted',platform:'X / Twitter',title:'Thread: The AI stack I use to go from idea to post in 2 hours',avatar:{initials:'SA',cls:'av-pk'}},
+];
+
+// ═══ STATE ═══
+let cards = [];
+let activeFilter = 'All';
+let currentCardId = null;
+
+function genId() {
+  return 'c_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6);
+}
+
+function saveCardsLocalOnly() {
+  localStorage.setItem('content_os_board_cards', JSON.stringify(cards));
+}
+
+function saveCards() {
+  saveCardsLocalOnly();
+  pushToCloud();
+}
+
+function pushToCloud() {
+  if (!sbClient) return;
+  clearTimeout(cloudSyncTimer);
+  cloudSyncTimer = setTimeout(async () => {
+    try {
+      await sbClient.from('emenu_store').upsert({
+        key: CLOUD_KEY,
+        value: cards,
+        updated_by: CLIENT_ID,
+        updated_at: new Date().toISOString()
+      });
+      console.log('☁️ Synced to Supabase Cloud successfully!');
+    } catch(e) {
+      console.warn('Cloud sync error:', e);
+    }
+  }, 200);
+}
+
+async function loadFromSupabase() {
+  if (!sbClient) return;
+  try {
+    const { data, error } = await sbClient.from('emenu_store').select('key,value,updated_by').eq('key', CLOUD_KEY).single();
+    if (!error && data && Array.isArray(data.value)) {
+      cards = data.value;
+      saveCardsLocalOnly();
+      renderBoard();
+      console.log('⚡ Loaded ' + cards.length + ' cards from Supabase cloud!');
+    } else if (error && error.code === 'PGRST116') {
+      // Key doesn't exist yet, seed initial cards to cloud
+      pushToCloud();
+    }
+  } catch(e) {
+    console.warn('Supabase load error:', e);
+  }
+}
+
+function subscribeRealtime() {
+  if (!sbClient) return;
+  try {
+    sbClient
+      .channel('content_os_cloud_sync')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'emenu_store' }, (payload) => {
+        const row = payload.new;
+        if (!row || row.key !== CLOUD_KEY) return;
+        if (row.updated_by === CLIENT_ID) return; // Ignore self updates
+        if (Array.isArray(row.value)) {
+          cards = row.value;
+          saveCardsLocalOnly();
+          renderBoard();
+          console.log('⚡ Realtime update received from cloud!');
+        }
+      })
+      .subscribe();
+  } catch(e) {}
+}
+
+function loadCards() {
+  const stored = localStorage.getItem('content_os_board_cards');
+  if (stored !== null) {
+    try {
+      cards = JSON.parse(stored);
+    } catch(e) {
+      cards = [];
+    }
+  } else {
+    cards = SEED_DATA.map(item => ({
+      id: genId(),
+      title: item.title,
+      platform: item.platform,
+      colId: item.colId,
+      avatar: item.avatar,
+      priority: 'Medium',
+      notes: "Imagine an AI agent telling your crews exactly when to stop outdoor work. This just launched, and it's a game changer for service businesses.",
+      aiInstructions: '',
+      script: 'Full reel script — hook on the first line',
+      caption: 'Caption for the post',
+      hashtags: '#AI #Automation #Productivity',
+      leadUrl: '',
+      commentKw: 'AI',
+      rawFootage: '',
+      editedDraft: '',
+      supporting: '',
+      postedUrl: '',
+      owner: 'Unassigned',
+      pm: 'Unassigned',
+      videoEditor: 'Unassigned',
+      writer: 'Unassigned',
+      scheduledFor: '',
+      postedAt: '',
+      comments: [],
+      activity: [{ text: 'Created as ' + item.platform, time: new Date().toLocaleString() }]
+    }));
+    saveCards();
+  }
+}
+
+function renderBoard() {
+  ['idea','scripting','filming','editing','review','revision','scheduled','posted'].forEach(colId => {
+    const colEl = document.getElementById('cards-' + colId);
+    if (colEl) colEl.innerHTML = '';
+  });
+
+  cards.forEach(card => {
+    const colEl = document.getElementById('cards-' + card.colId);
+    if (!colEl) return;
+
+    const iconCls = PLATFORM_ICON[card.platform] || 'ig-reel';
+    const statusVal = COL_TO_STATUS[card.colId] || 'Idea';
+    const avHtml = card.avatar ? `<div class="card-avatar ${card.avatar.cls}">${card.avatar.initials}</div>` : '<div></div>';
+    
+    const opts = Object.entries(STATUS_TO_COL).map(([name, val]) => 
+      `<option value="${val}" ${name === statusVal ? 'selected' : ''}>${name}</option>`
+    ).join('');
+
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    cardEl.dataset.platform = card.platform;
+    cardEl.dataset.cardId = card.id;
+    cardEl.id = 'card-node-' + card.id;
+    cardEl.innerHTML = `
+      <button class="card-del" onclick="event.stopPropagation();deleteCard('${card.id}')" title="Delete">&times;</button>
+      <span class="card-platform"><span class="p-icon ${iconCls}"></span> ${card.platform}</span>
+      <p class="card-title">${escapeHtml(card.title)}</p>
+      <div class="card-footer">
+        ${avHtml}
+        <select class="card-status" onchange="event.stopPropagation();moveCard('${card.id}', this.value)">${opts}</select>
+      </div>
+    `;
+
+    cardEl.addEventListener('click', (e) => {
+      if (e.target.classList.contains('card-del') || e.target.classList.contains('card-status')) return;
+      if (e.target.closest('.card-del') || e.target.closest('.card-status')) return;
+      openDetail(card.id);
+    });
+
+    if (activeFilter !== 'All' && card.platform !== activeFilter) {
+      cardEl.style.display = 'none';
+    }
+
+    colEl.appendChild(cardEl);
+  });
+
+  updateCounts();
+}
+
+function escapeHtml(str) {
+  return String(str || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function updateCounts() {
+  ['idea','scripting','filming','editing','review','revision','scheduled','posted'].forEach(colId => {
+    const colEl = document.getElementById('cards-' + colId);
+    const count = colEl ? colEl.querySelectorAll('.card').length : 0;
+    const badge = document.getElementById('cnt-' + colId);
+    if (badge) badge.textContent = count;
+  });
+}
+
+function moveCard(cardId, newColId) {
+  const card = cards.find(c => c.id === cardId);
+  if (!card) return;
+  card.colId = newColId;
+  saveCards();
+  renderBoard();
+  showToast('Moved to ' + COL_TO_STATUS[newColId]);
+}
+
+function deleteCard(cardId) {
+  cards = cards.filter(c => c.id !== cardId);
+  saveCards();
+  renderBoard();
+  showToast('Card deleted');
+}
+
+function clearAllCards() {
+  if (!confirm('Are you sure you want to delete all cards from the board?')) return;
+  cards = [];
+  saveCards();
+  renderBoard();
+  showToast('Board cleared!');
+}
+
+function resetSampleCards() {
+  if (!confirm('Reset board back to demo sample cards?')) return;
+  localStorage.removeItem('content_os_board_cards');
+  loadCards();
+  pushToCloud();
+  renderBoard();
+  showToast('Demo cards restored & synced to cloud!');
+}
+
+function setFilter(platform, btn) {
+  activeFilter = platform;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  document.querySelectorAll('.card').forEach(cardEl => {
+    cardEl.style.display = (platform === 'All' || cardEl.dataset.platform === platform) ? '' : 'none';
+  });
+}
+
+// ── INLINE ADD ──
+function showAddForm(colId) {
+  document.querySelectorAll('.add-form').forEach(f => f.remove());
+  const col = document.getElementById('col-' + colId);
+  const addBtn = col.querySelector('.add-card-btn');
+  const form = document.createElement('div');
+  form.className = 'add-form';
+  form.innerHTML = `
+    <select id="af-pl-${colId}">
+      ${Object.keys(PLATFORM_ICON).map(p => `<option>${p}</option>`).join('')}
+    </select>
+    <input id="af-t-${colId}" type="text" placeholder="Card title..."/>
+    <div class="add-form-actions">
+      <button class="form-submit" onclick="submitAddForm('${colId}')">Add Card</button>
+      <button class="form-cancel" onclick="cancelAddForm()">Cancel</button>
+    </div>
+  `;
+  col.insertBefore(form, addBtn);
+  const ti = document.getElementById('af-t-' + colId);
+  ti.focus();
+  ti.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') submitAddForm(colId);
+    if (e.key === 'Escape') cancelAddForm();
+  });
+}
+
+function cancelAddForm() {
+  document.querySelectorAll('.add-form').forEach(f => f.remove());
+}
+
+function submitAddForm(colId) {
+  const ti = document.getElementById('af-t-' + colId);
+  const pi = document.getElementById('af-pl-' + colId);
+  const title = ti ? ti.value.trim() : '';
+  const platform = pi ? pi.value : 'IG Reel';
+  if (!title) { if (ti) ti.focus(); return; }
+
+  const newCard = {
+    id: genId(),
+    title: title,
+    platform: platform,
+    colId: colId,
+    avatar: null,
+    priority: 'Medium',
+    notes: '',
+    aiInstructions: '',
+    script: '',
+    caption: '',
+    hashtags: '#AI #Automation #Productivity',
+    leadUrl: '',
+    commentKw: 'AI',
+    rawFootage: '',
+    editedDraft: '',
+    supporting: '',
+    postedUrl: '',
+    owner: 'Unassigned',
+    pm: 'Unassigned',
+    videoEditor: 'Unassigned',
+    writer: 'Unassigned',
+    scheduledFor: '',
+    postedAt: '',
+    comments: [],
+    activity: [{ text: 'Created as ' + platform, time: new Date().toLocaleString() }]
+  };
+
+  cards.unshift(newCard);
+  saveCards();
+  cancelAddForm();
+  renderBoard();
+  showToast('Card added!');
+}
+
+// ── NEW MODAL ──
+function openModal() {
+  document.getElementById('modal').classList.add('open');
+  document.getElementById('m-title').focus();
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  document.getElementById('m-title').value = '';
+}
+
+function submitModal() {
+  const title = document.getElementById('m-title').value.trim();
+  const platform = document.getElementById('m-platform').value;
+  const colId = document.getElementById('m-status').value;
+  if (!title) { document.getElementById('m-title').focus(); return; }
+
+  const newCard = {
+    id: genId(),
+    title: title,
+    platform: platform,
+    colId: colId,
+    avatar: null,
+    priority: 'Medium',
+    notes: '',
+    aiInstructions: '',
+    script: '',
+    caption: '',
+    hashtags: '#AI #Automation #Productivity',
+    leadUrl: '',
+    commentKw: 'AI',
+    rawFootage: '',
+    editedDraft: '',
+    supporting: '',
+    postedUrl: '',
+    owner: 'Unassigned',
+    pm: 'Unassigned',
+    videoEditor: 'Unassigned',
+    writer: 'Unassigned',
+    scheduledFor: '',
+    postedAt: '',
+    comments: [],
+    activity: [{ text: 'Created as ' + platform, time: new Date().toLocaleString() }]
+  };
+
+  cards.unshift(newCard);
+  saveCards();
+  closeModal();
+  renderBoard();
+  showToast('Card created and saved!');
+}
+
+// ── DETAIL VIEW ──
+function openDetail(cardId) {
+  currentCardId = cardId;
+  const d = cards.find(c => c.id === cardId);
+  if (!d) return;
+
+  document.getElementById('d-title').value = d.title || '';
+  document.getElementById('d-source-title').textContent = d.title || 'Idea source';
+  document.getElementById('d-source-desc').textContent = d.notes || 'No source description yet.';
+  document.getElementById('d-platform').value = d.platform || 'IG Reel';
+  document.getElementById('d-status').value = d.colId || 'idea';
+  document.getElementById('d-priority').value = d.priority || 'Medium';
+  document.getElementById('d-notes').value = d.notes || '';
+  document.getElementById('d-ai-instructions').value = d.aiInstructions || '';
+  document.getElementById('d-script').value = d.script || '';
+  document.getElementById('d-caption').value = d.caption || '';
+  document.getElementById('d-hashtags').value = d.hashtags || '#AI #Automation #Productivity';
+  document.getElementById('d-lead-url').value = d.leadUrl || '';
+  document.getElementById('d-comment-kw').value = d.commentKw || '';
+  document.getElementById('d-raw-footage').value = d.rawFootage || '';
+  document.getElementById('d-edited-draft').value = d.editedDraft || '';
+  document.getElementById('d-supporting').value = d.supporting || '';
+  document.getElementById('d-posted-url').value = d.postedUrl || '';
+  document.getElementById('d-owner').value = d.owner || 'Unassigned';
+  document.getElementById('d-pm').value = d.pm || 'Unassigned';
+  document.getElementById('d-video-editor').value = d.videoEditor || 'Unassigned';
+  document.getElementById('d-writer').value = d.writer || 'Unassigned';
+  document.getElementById('d-scheduled-for').value = d.scheduledFor || '';
+  document.getElementById('d-posted-at').value = d.postedAt || '';
+  document.getElementById('d-ai-platform-label').textContent = (d.platform || 'IG REEL').toUpperCase();
+
+  renderComments(d.comments || []);
+  renderActivity(d.activity || []);
+
+  document.getElementById('board-mode').style.display = 'none';
+  document.getElementById('detail-view').classList.add('open');
+  document.getElementById('detail-view').scrollTop = 0;
+}
+
+function closeDetail() {
+  document.getElementById('detail-view').classList.remove('open');
+  document.getElementById('board-mode').style.display = 'flex';
+  currentCardId = null;
+}
+
+function saveDetail() {
+  if (!currentCardId) return;
+  const d = cards.find(c => c.id === currentCardId);
+  if (!d) return;
+
+  d.title = document.getElementById('d-title').value.trim() || 'Untitled';
+  d.platform = document.getElementById('d-platform').value;
+  d.colId = document.getElementById('d-status').value;
+  d.priority = document.getElementById('d-priority').value;
+  d.notes = document.getElementById('d-notes').value;
+  d.aiInstructions = document.getElementById('d-ai-instructions').value;
+  d.script = document.getElementById('d-script').value;
+  d.caption = document.getElementById('d-caption').value;
+  d.hashtags = document.getElementById('d-hashtags').value;
+  d.leadUrl = document.getElementById('d-lead-url').value;
+  d.commentKw = document.getElementById('d-comment-kw').value;
+  d.rawFootage = document.getElementById('d-raw-footage').value;
+  d.editedDraft = document.getElementById('d-edited-draft').value;
+  d.supporting = document.getElementById('d-supporting').value;
+  d.postedUrl = document.getElementById('d-posted-url').value;
+  d.owner = document.getElementById('d-owner').value;
+  d.pm = document.getElementById('d-pm').value;
+  d.videoEditor = document.getElementById('d-video-editor').value;
+  d.writer = document.getElementById('d-writer').value;
+  d.scheduledFor = document.getElementById('d-scheduled-for').value;
+  d.postedAt = document.getElementById('d-posted-at').value;
+
+  if (!d.activity) d.activity = [];
+  d.activity.unshift({ text: 'Updated: ' + d.title, time: new Date().toLocaleString() });
+
+  saveCards();
+  renderBoard();
+  closeDetail();
+  showToast('Card saved & synced to cloud!');
+}
+
+function deleteFromDetail() {
+  if (currentCardId) {
+    deleteCard(currentCardId);
+    closeDetail();
+  }
+}
+
+function renderComments(comments) {
+  const list = document.getElementById('d-comments-list');
+  const empty = document.getElementById('d-comments-empty');
+  const counter = document.getElementById('d-comment-count');
+  list.innerHTML = '';
+  counter.textContent = comments.length;
+  if (comments.length === 0) { empty.style.display = ''; return; }
+  empty.style.display = 'none';
+  comments.forEach(c => {
+    const div = document.createElement('div');
+    div.className = 'comment-item';
+    div.innerHTML = `<div class="comment-meta"><strong>${escapeHtml(c.author)}</strong> &middot; ${escapeHtml(c.time)}</div><div class="comment-body">${escapeHtml(c.text)}</div>`;
+    list.appendChild(div);
+  });
+}
+
+function addComment() {
+  if (!currentCardId) return;
+  const ti = document.getElementById('d-comment-text');
+  const text = ti ? ti.value.trim() : '';
+  if (!text) return;
+  const author = document.getElementById('d-comment-author').value;
+  const d = cards.find(c => c.id === currentCardId);
+  if (!d) return;
+
+  if (!d.comments) d.comments = [];
+  d.comments.push({ author: author, text: text, time: new Date().toLocaleString() });
+  ti.value = '';
+  renderComments(d.comments);
+  saveCards();
+}
+
+function renderActivity(acts) {
+  const list = document.getElementById('d-activity-list');
+  list.innerHTML = '';
+  (acts || []).slice(0, 6).forEach(a => {
+    const div = document.createElement('div');
+    div.className = 'activity-item';
+    div.innerHTML = `<div class="activity-text">${escapeHtml(a.text)}</div><div class="activity-time">${escapeHtml(a.time)}</div>`;
+    list.appendChild(div);
+  });
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    closeModal(); cancelAddForm();
+  }
+});
+
+document.getElementById('d-comment-text').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') addComment();
+});
+
+// ── PROCESS URL PARAMS (?card=, ?status=, ?filter=) ──
+function checkUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+  const cardId = params.get('card');
+  const statusParam = params.get('status');
+  const filterParam = params.get('filter');
+
+  if (filterParam) {
+    const filterBtn = Array.from(document.querySelectorAll('.filter-btn')).find(b => b.textContent.trim() === filterParam);
+    if (filterBtn) setFilter(filterParam, filterBtn);
+  }
+
+  if (statusParam) {
+    const colEl = document.getElementById('col-' + statusParam);
+    if (colEl) {
+      colEl.scrollIntoView({ behavior: 'smooth', inline: 'center' });
+      colEl.classList.add('highlight');
+      setTimeout(() => colEl.classList.remove('highlight'), 2000);
+    }
+  }
+
+  if (cardId) {
+    const targetCard = cards.find(c => c.id === cardId);
+    if (targetCard) {
+      openDetail(cardId);
+    }
+  }
+}
+
+// ── INIT ──
+initSupabase();
+loadCards();
+renderBoard();
+checkUrlParams();
+loadFromSupabase().then(() => {
+  checkUrlParams();
+  subscribeRealtime();
+});
+</script>
+</body>
+</html>
