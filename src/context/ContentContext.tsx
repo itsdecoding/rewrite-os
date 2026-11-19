@@ -46,14 +46,19 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
 
   // Initial load from LocalStorage first (instant paint) then Supabase
   useEffect(() => {
+    let initialCards = INITIAL_CARDS;
     try {
       const stored = localStorage.getItem(LOCAL_STORAGE_KEY);
       if (stored !== null) {
-        setCards(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          initialCards = parsed;
+        }
       }
     } catch (e) {
       console.warn("Could not load from localStorage", e);
     }
+    setCards(initialCards);
     setIsLoaded(true);
 
     // Fetch from Supabase
@@ -61,7 +66,7 @@ export function ContentProvider({ children }: { children: React.ReactNode }) {
       setIsSyncing(true);
       fetchCardsFromDb()
         .then((dbCards) => {
-          if (Array.isArray(dbCards)) {
+          if (Array.isArray(dbCards) && dbCards.length > 0) {
             setCards(dbCards);
             setIsDbConnected(true);
             try {
