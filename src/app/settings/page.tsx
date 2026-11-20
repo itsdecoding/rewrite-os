@@ -49,10 +49,10 @@ export default function SettingsPage() {
       `"${c.postedAt || ""}"`,
     ]);
 
-    const csvContent = "data:text/csv;charset=utf-8," + [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
-    const encodedUri = encodeURI(csvContent);
+    const csvData = [headers.join(","), ...rows.map((e) => e.join(","))].join("\n");
+    const dataStr = "data:text/csv;charset=utf-8," + encodeURIComponent(csvData);
     const downloadAnchor = document.createElement("a");
-    downloadAnchor.setAttribute("href", encodedUri);
+    downloadAnchor.setAttribute("href", dataStr);
     downloadAnchor.setAttribute("download", `rewriteminds_pipeline_${new Date().toISOString().split("T")[0]}.csv`);
     document.body.appendChild(downloadAnchor);
     downloadAnchor.click();
