@@ -32,14 +32,19 @@ export function Sidebar() {
       {/* Top Header & Brand */}
       <div>
         <div className="flex items-center gap-3 px-2 py-1 mb-5">
-          <div className="w-10 h-10 rounded-full overflow-hidden bg-zinc-900 border border-zinc-700 flex-shrink-0 flex items-center justify-center text-white font-semibold text-sm">
-            {/* User Avatar */}
+          <div className="w-10 h-10 rounded-full overflow-hidden bg-black border border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-xs">
+            {/* User / Brand Avatar */}
             <img
-              src="/avatar.jpg"
-              alt="Muzammil"
-              className="w-full h-full object-cover object-top"
+              src="/studio/avatar.jpg"
+              alt="Rewrite Minds"
+              className="w-full h-full object-cover"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (target.src.includes("/studio/")) {
+                  target.src = "/avatar.jpg";
+                }
+              }}
             />
-            <span className="hidden">RM</span>
           </div>
           <div className="flex flex-col">
             <h1 className="text-[14px] font-bold text-[#1A1A1A] leading-tight">

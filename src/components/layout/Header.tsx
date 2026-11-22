@@ -58,11 +58,17 @@ export function Header({ showBoardFilters = false }: HeaderProps) {
       <div className="md:hidden w-full px-3.5 pt-3 pb-1">
         <div className="w-full bg-white rounded-2xl border border-gray-200/80 shadow-[0_1px_4px_rgba(0,0,0,0.02)] p-2.5 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-900 border border-gray-200 flex-shrink-0">
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-black border border-zinc-800 flex-shrink-0">
               <img
-                src="/avatar.jpg"
-                alt="Content OS"
-                className="w-full h-full object-cover object-top grayscale"
+                src="/studio/avatar.jpg"
+                alt="Rewrite Minds"
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  if (target.src.includes("/studio/")) {
+                    target.src = "/avatar.jpg";
+                  }
+                }}
               />
             </div>
             <div className="flex flex-col">
