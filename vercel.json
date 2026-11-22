@@ -1,4 +1,11 @@
 {
+  "redirects": [
+    {
+      "source": "/",
+      "destination": "/studio",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",
