@@ -12,20 +12,25 @@ import {
   Clock,
   Settings,
   Plus,
+  LogOut,
+  Shield,
+  User,
 } from "lucide-react";
 import { useContent } from "@/context/ContentContext";
+import { useAuth } from "@/context/AuthContext";
 
 export function Sidebar() {
   const pathname = usePathname();
   const { setIsCreateModalOpen } = useContent();
+  const { currentUser, logout } = useAuth();
 
-  const isHomeActive = pathname === "/home" || pathname === "/";
-  const isContentActive = pathname.startsWith("/content");
-  const isTasksActive = pathname.startsWith("/tasks");
-  const isCalendarActive = pathname.startsWith("/calendar");
-  const isDiscoverActive = pathname.startsWith("/discover");
-  const isInsightsActive = pathname.startsWith("/insights");
-  const isSettingsActive = pathname.startsWith("/settings");
+  const isHomeActive = pathname === "/studio/home" || pathname === "/studio" || pathname === "/home";
+  const isContentActive = pathname.startsWith("/studio/content") || pathname.startsWith("/content");
+  const isTasksActive = pathname.startsWith("/studio/tasks") || pathname.startsWith("/tasks");
+  const isCalendarActive = pathname.startsWith("/studio/calendar") || pathname.startsWith("/calendar");
+  const isDiscoverActive = pathname.startsWith("/studio/discover") || pathname.startsWith("/discover");
+  const isInsightsActive = pathname.startsWith("/studio/insights") || pathname.startsWith("/insights");
+  const isSettingsActive = pathname.startsWith("/studio/settings") || pathname.startsWith("/settings");
 
   return (
     <aside className="hidden md:flex fixed top-4 left-4 bottom-4 w-[240px] z-40 bg-white rounded-3xl border border-gray-100/90 shadow-sidebar flex-col justify-between p-4 select-none">
@@ -35,14 +40,11 @@ export function Sidebar() {
           <div className="w-10 h-10 rounded-full overflow-hidden bg-black border border-zinc-800 flex-shrink-0 flex items-center justify-center shadow-xs">
             {/* User / Brand Avatar */}
             <img
-              src="/studio/avatar.jpg"
+              src="/logo.jpg"
               alt="Rewrite Minds"
               className="w-full h-full object-cover"
               onError={(e) => {
-                const target = e.currentTarget;
-                if (target.src.includes("/studio/")) {
-                  target.src = "/avatar.jpg";
-                }
+                e.currentTarget.src = "/avatar.jpg";
               }}
             />
           </div>
@@ -72,7 +74,7 @@ export function Sidebar() {
           </div>
 
           <Link
-            href="/home"
+            href="/studio/home"
             className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isHomeActive
                 ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -84,7 +86,7 @@ export function Sidebar() {
           </Link>
 
           <Link
-            href="/content"
+            href="/studio/content"
             className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isContentActive
                 ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -96,7 +98,7 @@ export function Sidebar() {
           </Link>
 
           <Link
-            href="/tasks"
+            href="/studio/tasks"
             className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isTasksActive
                 ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -108,7 +110,7 @@ export function Sidebar() {
           </Link>
 
           <Link
-            href="/calendar"
+            href="/studio/calendar"
             className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isCalendarActive
                 ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -120,7 +122,7 @@ export function Sidebar() {
           </Link>
 
           <Link
-            href="/discover"
+            href="/studio/discover"
             className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isDiscoverActive
                 ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -132,7 +134,7 @@ export function Sidebar() {
           </Link>
 
           <Link
-            href="/insights"
+            href="/studio/insights"
             className={`w-full flex items-center gap-3 px-3.5 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
               isInsightsActive
                 ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -145,10 +147,10 @@ export function Sidebar() {
         </div>
       </div>
 
-      {/* Bottom Settings Link */}
-      <div className="pt-2 border-t border-gray-100/80">
+      {/* Bottom User & Settings Area */}
+      <div className="space-y-1.5 pt-2 border-t border-gray-100/90">
         <Link
-          href="/settings"
+          href="/studio/settings"
           className={`flex items-center gap-3 px-3 py-2 rounded-xl text-[13.5px] font-medium transition-all ${
             isSettingsActive
               ? "bg-[#FF5A1F] text-white shadow-xs font-semibold"
@@ -158,6 +160,30 @@ export function Sidebar() {
           <Settings className={`w-4 h-4 ${isSettingsActive ? "text-white" : "text-gray-500"}`} />
           <span>Settings</span>
         </Link>
+
+        {/* User Badge & Logout */}
+        <div className="px-3 py-2 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-between">
+          <div className="flex items-center gap-2 overflow-hidden">
+            <div className="w-6 h-6 rounded-full bg-zinc-900 text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+              {currentUser?.name?.[0] || "M"}
+            </div>
+            <div className="truncate">
+              <p className="text-xs font-semibold text-gray-900 truncate leading-tight">
+                {currentUser?.name || "Muzammil"}
+              </p>
+              <p className="text-[10px] text-gray-400 font-medium leading-none">
+                {currentUser?.role || "Owner"}
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={logout}
+            title="Lock & Exit Studio"
+            className="p-1.5 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors cursor-pointer"
+          >
+            <LogOut className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
     </aside>
   );

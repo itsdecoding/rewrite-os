@@ -16,8 +16,10 @@ export function MobileTabBar() {
   const pathname = usePathname();
   const { setIsCreateModalOpen } = useContent();
 
-  const isHomeActive = pathname === "/home" || pathname === "/";
-  const isContentActive = pathname.startsWith("/content");
+  const isHomeActive = pathname === "/studio/home" || pathname === "/studio" || pathname === "/home";
+  const isContentActive = pathname.startsWith("/studio/content") || pathname.startsWith("/content");
+  const isCalendarActive = pathname.startsWith("/studio/calendar") || pathname.startsWith("/calendar");
+  const isInsightsActive = pathname.startsWith("/studio/insights") || pathname.startsWith("/insights");
 
   return (
     <nav
@@ -28,7 +30,7 @@ export function MobileTabBar() {
       <div className="bg-white/80 backdrop-blur-2xl border border-white/70 shadow-[0_12px_40px_rgba(0,0,0,0.12),0_2px_8px_rgba(0,0,0,0.04)] rounded-full px-3 py-1.5 flex items-center justify-between">
         {/* 1. Home Tab */}
         <Link
-          href="/home"
+          href="/studio/home"
           className="flex-1 flex flex-col items-center justify-center py-1 group active:scale-95 transition-transform"
         >
           <div
@@ -49,7 +51,7 @@ export function MobileTabBar() {
 
         {/* 2. Content Tab */}
         <Link
-          href="/content"
+          href="/studio/content"
           className="flex-1 flex flex-col items-center justify-center py-1 group active:scale-95 transition-transform"
         >
           <div
@@ -85,19 +87,19 @@ export function MobileTabBar() {
 
         {/* 4. Calendar Tab */}
         <Link
-          href="/calendar"
+          href="/studio/calendar"
           className="flex-1 flex flex-col items-center justify-center py-1 group active:scale-95 transition-transform cursor-pointer"
         >
           <div
             className={`transition-colors ${
-              pathname.startsWith("/calendar") ? "text-[#FF5A1F]" : "text-gray-400 group-hover:text-gray-600"
+              isCalendarActive ? "text-[#FF5A1F]" : "text-gray-400 group-hover:text-gray-600"
             }`}
           >
             <Calendar className="w-5 h-5 stroke-[2.2]" />
           </div>
           <span
             className={`text-[10px] font-medium tracking-tight mt-0.5 leading-none transition-colors ${
-              pathname.startsWith("/calendar") ? "text-[#FF5A1F] font-bold" : "text-gray-400"
+              isCalendarActive ? "text-[#FF5A1F] font-bold" : "text-gray-400"
             }`}
           >
             Calendar
@@ -106,19 +108,19 @@ export function MobileTabBar() {
 
         {/* 5. Insights Tab */}
         <Link
-          href="/insights"
+          href="/studio/insights"
           className="flex-1 flex flex-col items-center justify-center py-1 group active:scale-95 transition-transform cursor-pointer"
         >
           <div
             className={`transition-colors ${
-              pathname.startsWith("/insights") ? "text-[#FF5A1F]" : "text-gray-400 group-hover:text-gray-600"
+              isInsightsActive ? "text-[#FF5A1F]" : "text-gray-400 group-hover:text-gray-600"
             }`}
           >
             <PieChart className="w-5 h-5 stroke-[2.2]" />
           </div>
           <span
             className={`text-[10px] font-medium tracking-tight mt-0.5 leading-none transition-colors ${
-              pathname.startsWith("/insights") ? "text-[#FF5A1F] font-bold" : "text-gray-400"
+              isInsightsActive ? "text-[#FF5A1F] font-bold" : "text-gray-400"
             }`}
           >
             Insights

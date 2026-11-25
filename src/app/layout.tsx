@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { MobileTabBar } from "@/components/layout/MobileTabBar";
 import { ContentProvider } from "@/context/ContentContext";
-import { CreateContentModal } from "@/components/modals/CreateContentModal";
+import { AuthProvider } from "@/context/AuthContext";
+import { StudioLayoutWrapper } from "@/components/layout/StudioLayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Content OS — Rewriteminds",
-  description: "Next-generation content pipeline and operating system.",
+  title: "Rewrite Minds",
+  description: "Rewriting Perceptions. Breaking Mental Conditioning. Operating systems and frameworks for high-agency minds.",
 };
 
 export default function RootLayout({
@@ -21,16 +20,11 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className} suppressHydrationWarning>
-        <ContentProvider>
-          <div className="flex min-h-screen">
-            <Sidebar />
-            <div className="flex-1 ml-0 md:ml-[256px] min-w-0 transition-all pb-28 md:pb-6">
-              {children}
-            </div>
-          </div>
-          <MobileTabBar />
-          <CreateContentModal />
-        </ContentProvider>
+        <AuthProvider>
+          <ContentProvider>
+            <StudioLayoutWrapper>{children}</StudioLayoutWrapper>
+          </ContentProvider>
+        </AuthProvider>
       </body>
     </html>
   );
