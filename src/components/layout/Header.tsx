@@ -60,14 +60,11 @@ export function Header({ showBoardFilters = false }: HeaderProps) {
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-full overflow-hidden bg-black border border-zinc-800 flex-shrink-0">
               <img
-                src="/studio/avatar.jpg"
+                src="/logo.jpg"
                 alt="Rewrite Minds"
                 className="w-full h-full object-cover"
                 onError={(e) => {
-                  const target = e.currentTarget;
-                  if (target.src.includes("/studio/")) {
-                    target.src = "/avatar.jpg";
-                  }
+                  e.currentTarget.src = "/avatar.jpg";
                 }}
               />
             </div>

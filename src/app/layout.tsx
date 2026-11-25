@@ -10,6 +10,10 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "Rewrite Minds",
   description: "Rewriting Perceptions. Breaking Mental Conditioning. Operating systems and frameworks for high-agency minds.",
+  icons: {
+    icon: "/logo.jpg",
+    apple: "/logo.jpg",
+  },
 };
 
 export default function RootLayout({
